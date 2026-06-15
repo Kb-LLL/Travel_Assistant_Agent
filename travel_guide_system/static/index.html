@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅游攻略搜索与分析系统</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #12122a;
+            --bg-card: #1a1a3e;
+            --bg-card-hover: #222255;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --accent-glow: rgba(99, 102, 241, 0.3);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --border: rgba(99, 102, 241, 0.2);
+            --gradient-1: linear-gradient(135deg, #6366f1, #8b5cf6);
+            --gradient-2: linear-gradient(135deg, #10b981, #059669);
+            --gradient-3: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+        }
+
+        /* ========== Header ========== */
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 20px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .logo-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--gradient-1);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .logo-text h1 {
+            font-size: 20px;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ========== Search Section ========== */
+        .search-section {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 24px;
+        }
+
+        .search-box {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .search-box h2 {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .search-input-wrapper {
+            display: flex;
+            gap: 12px;
+        }
+
+        .search-input {
+            flex: 1;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 20px;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-family: inherit;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .search-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-btn {
+            background: var(--gradient-1);
+            border: none;
+            color: white;
+            padding: 14px 32px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            white-space: nowrap;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .search-hints {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hint-tag {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .hint-tag:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        /* ========== Results Section ========== */
+        .results-section {
+            display: none;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 1024px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* ========== Card Styles ========== */
+        .card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s;
+        }
+
+        .card:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title .icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+
+        .card-title h3 {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .card-badge {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        /* ========== Web Results ========== */
+        .web-result-item {
+            background: var(--bg-card);
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .web-result-item:hover {
+            border-color: var(--accent);
+            background: var(--bg-card-hover);
+        }
+
+        .web-result-item h4,
+        .web-result-item a.result-link {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--accent-light);
+            margin-bottom: 8px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .web-result-item a.result-link:hover {
+            text-decoration: underline;
+        }
+
+        .web-result-item p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .web-result-meta {
+            display: flex;
+            gap: 16px;
+            font-size: 11px;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+
+        .source-link {
+            color: var(--accent-light);
+            text-decoration: none;
+        }
+
+        .source-link:hover {
+            text-decoration: underline;
+        }
+
+        .search-warning {
+            color: var(--warning);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        /* ========== Review Cards ========== */
+        .platform-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .platform-tab {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .platform-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .platform-tab:hover:not(.active) {
+            border-color: var(--accent);
+        }
+
+        .review-item {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .review-name {
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .review-rating {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 13px;
+            color: var(--warning);
+        }
+
+        .review-content {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .review-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .review-tag {
+            background: var(--bg-primary);
+            color: var(--accent-light);
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+
+        .review-stats {
+            display: flex;
+            gap: 12px;
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 10px;
+        }
+
+        /* ========== Analyze Button ========== */
+        .analyze-section {
+            text-align: center;
+            margin: 32px 0;
+        }
+
+        .analyze-btn {
+            background: var(--gradient-1);
+            border: none;
+            color: white;
+            padding: 16px 48px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .analyze-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px var(--accent-glow);
+        }
+
+        .analyze-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ========== Analysis Result ========== */
+        .analysis-section {
+            display: none;
+        }
+
+        .analysis-section.active {
+            display: block;
+        }
+
+        .analysis-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 24px;
+        }
+
+        .analysis-card h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .analysis-content {
+            font-size: 15px;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        .analysis-content h3 {
+            color: var(--text-primary);
+            font-size: 17px;
+            margin: 20px 0 10px;
+        }
+
+        .analysis-content strong {
+            color: var(--accent-light);
+        }
+
+        .analysis-content ul, .analysis-content ol {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        .analysis-content li {
+            margin: 6px 0;
+        }
+
+        /* ========== Loading ========== */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========== Stats Bar ========== */
+        .stats-bar {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px 20px;
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .stat-value.accent { color: var(--accent-light); }
+        .stat-value.success { color: var(--success); }
+        .stat-value.warning { color: var(--warning); }
+
+        /* ========== Typing Animation ========== */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 1em;
+            background: var(--accent);
+            margin-left: 2px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">🌍</div>
+                <div class="logo-text">
+                    <h1>旅游攻略搜索与分析系统</h1>
+                    <p>多平台评论聚合 · AI智能分析 · 一键生成攻略</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Section -->
+    <div class="search-section">
+        <div class="search-box">
+            <h2>🔍 搜索旅游攻略</h2>
+            <div class="search-input-wrapper">
+                <input type="text" class="search-input" id="searchInput" 
+                       placeholder="输入目的地，如：从北京到上海、北京-上海、上海旅游攻略"
+                       onkeydown="if(event.key==='Enter')startSearch()">
+                <button class="search-btn" id="searchBtn" onclick="startSearch()">搜索攻略</button>
+            </div>
+            <div class="search-hints">
+                <span class="hint-tag" onclick="fillSearch('从北京到上海')">北京→上海</span>
+                <span class="hint-tag" onclick="fillSearch('从广州到成都')">广州→成都</span>
+                <span class="hint-tag" onclick="fillSearch('从深圳到杭州')">深圳→杭州</span>
+                <span class="hint-tag" onclick="fillSearch('从上海到三亚')">上海→三亚</span>
+                <span class="hint-tag" onclick="fillSearch('西安旅游攻略')">西安</span>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="searchLoading" style="display:none">
+            <div class="loading-spinner"></div>
+            <span>正在搜索各平台数据...</span>
+        </div>
+
+        <!-- Results -->
+        <div class="results-section" id="resultsSection">
+            <!-- Stats -->
+            <div class="stats-bar" id="statsBar"></div>
+
+            <div class="results-grid">
+                <!-- Web Results -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="icon" style="background: var(--gradient-1)">🌐</div>
+                            <h3>网页攻略</h3>
+                        </div>
+                        <span class="card-badge" id="webCount">0 条结果</span>
+                    </div>
+                    <div id="webResults"></div>
+                </div>
+
+                <!-- Platform Reviews -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-title">
+                            <div class="icon" style="background: var(--gradient-2)">💬</div>
+                            <h3>多平台评论</h3>
+                        </div>
+                        <span class="card-badge" id="reviewCount">0 条评论</span>
+                    </div>
+                    <div class="platform-tabs" id="platformTabs"></div>
+                    <div id="platformReviews"></div>
+                </div>
+            </div>
+
+            <!-- Analyze Button -->
+            <div class="analyze-section">
+                <button class="analyze-btn" id="analyzeBtn" onclick="startAnalyze()">
+                    🤖 AI 综合分析生成攻略
+                </button>
+            </div>
+        </div>
+
+        <!-- Analysis Result -->
+        <div class="analysis-section" id="analysisSection">
+            <div class="analysis-card">
+                <h2>📋 综合旅游攻略</h2>
+                <div class="analysis-content" id="analysisContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+        let currentPlatform = 'all';
+
+        function fillSearch(text) {
+            document.getElementById('searchInput').value = text;
+            document.getElementById('searchInput').focus();
+        }
+
+        async function startSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (!query) return;
+
+            const btn = document.getElementById('searchBtn');
+            const loading = document.getElementById('searchLoading');
+            const results = document.getElementById('resultsSection');
+            const analysis = document.getElementById('analysisSection');
+
+            btn.disabled = true;
+            btn.textContent = '搜索中...';
+            loading.style.display = 'flex';
+            results.classList.remove('active');
+            analysis.classList.remove('active');
+
+            try {
+                const response = await fetch('/api/search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    currentData = data;
+                    renderResults(data);
+                    results.classList.add('active');
+                } else {
+                    alert(data.message || '搜索失败');
+                }
+            } catch (error) {
+                alert('搜索出错: ' + error.message);
+            }
+
+            btn.disabled = false;
+            btn.textContent = '搜索攻略';
+            loading.style.display = 'none';
+        }
+
+        function escapeText(text) {
+            const div = document.createElement('div');
+            div.textContent = text == null ? '' : String(text);
+            return div.innerHTML;
+        }
+
+        function escapeHtml(text) {
+            return escapeText(text).replace(/\n/g, '<br>');
+        }
+
+        function escapeAttr(text) {
+            return escapeText(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function safeHref(url) {
+            try {
+                const parsed = new URL(url, window.location.origin);
+                if (parsed.protocol === 'http:' || parsed.protocol === 'https:') return parsed.href;
+            } catch (e) {}
+            return '#';
+        }
+
+        function resultMeta(item) {
+            const pieces = [];
+            if (item.source) pieces.push(`📄 ${escapeText(item.source)}`);
+            if (item.publish_date) pieces.push(`📅 ${escapeText(item.publish_date)}`);
+            if (typeof item.views === 'number') pieces.push(`👁️ ${item.views}浏览`);
+            return pieces.length ? `<div class="web-result-meta">${pieces.map(p => `<span>${p}</span>`).join('')}</div>` : '';
+        }
+
+        function renderResults(data) {
+            // Stats
+            const webCount = data.web_results?.results?.length || 0;
+            const reviewCount = data.reviews_results?.total_items || data.reviews_results?.total_reviews || 0;
+            const platformCount = Object.keys(data.reviews_results?.platforms || {}).length;
+
+            document.getElementById('statsBar').innerHTML = `
+                <div class="stat-item">
+                    <div class="stat-label">出发地</div>
+                    <div class="stat-value accent">${escapeText(data.origin)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">目的地</div>
+                    <div class="stat-value accent">${escapeText(data.destination)}</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">网页攻略</div>
+                    <div class="stat-value success">${webCount} 篇</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">平台公开结果</div>
+                    <div class="stat-value warning">${reviewCount} 条</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">数据平台</div>
+                    <div class="stat-value">${platformCount} 个</div>
+                </div>
+            `;
+
+            // Web Results
+            document.getElementById('webCount').textContent = `${webCount} 条结果`;
+            const webHtml = data.web_results?.results?.map(item => `
+                <div class="web-result-item">
+                    <a class="result-link" href="${escapeAttr(safeHref(item.url || item.source_url || ''))}" target="_blank" rel="noopener noreferrer">${escapeText(item.title || '未命名结果')}</a>
+                    <p>${escapeHtml(item.snippet || '暂无摘要')}</p>
+                    ${resultMeta(item)}
+                </div>
+            `).join('') || '<p style="color: var(--text-muted)">暂无结果</p>';
+            document.getElementById('webResults').innerHTML = webHtml;
+
+            // Platform Tabs
+            const platforms = data.reviews_results?.platforms || {};
+            const tabsHtml = `<button class="platform-tab active" data-platform="all" onclick="switchPlatform('all')">全部平台</button>` +
+                Object.entries(platforms).map(([key, val]) => `
+                    <button class="platform-tab" data-platform="${escapeAttr(key)}" onclick="switchPlatform('${escapeAttr(key)}')">${escapeText(val.icon || '')} ${escapeText(val.platform || key)}</button>
+                `).join('');
+            document.getElementById('platformTabs').innerHTML = tabsHtml;
+
+            // Reviews
+            document.getElementById('reviewCount').textContent = `${reviewCount} 条公开结果`;
+            renderReviews('all');
+        }
+
+        function renderReviews(platform) {
+            const platforms = currentData?.reviews_results?.platforms || {};
+            let reviews = [];
+
+            if (platform === 'all') {
+                Object.values(platforms).forEach(p => {
+                    const items = p.items || p.reviews || [];
+                    reviews = reviews.concat(items.map(r => ({...r, platform: p.platform, icon: p.icon, warning: p.warning})));
+                });
+            } else {
+                const p = platforms[platform];
+                if (p) {
+                    const items = p.items || p.reviews || [];
+                    reviews = items.map(r => ({...r, platform: p.platform, icon: p.icon, warning: p.warning}));
+                }
+            }
+
+            const html = reviews.map(r => `
+                <div class="review-item">
+                    <div class="review-header">
+                        <div class="review-user">
+                            <div class="review-avatar">${escapeText(r.icon || '🔎')}</div>
+                            <span class="review-name">${escapeText(r.platform || '')}</span>
+                            <span style="font-size:11px;color:var(--text-muted)">${escapeText(r.source || '')}</span>
+                        </div>
+                        <a class="source-link" href="${escapeAttr(safeHref(r.url || r.source_url || ''))}" target="_blank" rel="noopener noreferrer">打开来源</a>
+                    </div>
+                    <a class="result-link" href="${escapeAttr(safeHref(r.url || r.source_url || ''))}" target="_blank" rel="noopener noreferrer">${escapeText(r.title || '未命名结果')}</a>
+                    <div class="review-content">${escapeHtml(r.snippet || r.content || '暂无摘要')}</div>
+                    <div class="review-tags">
+                        ${(r.tags || []).map(t => `<span class="review-tag">#${escapeText(t)}</span>`).join('')}
+                    </div>
+                    ${r.warning ? `<div class="search-warning">${escapeHtml(r.warning)}</div>` : ''}
+                </div>
+            `).join('') || '<p style="color:var(--text-muted);padding:20px">暂无公开结果</p>';
+
+            document.getElementById('platformReviews').innerHTML = html;
+        }
+
+        function switchPlatform(platform) {
+            currentPlatform = platform;
+            document.querySelectorAll('.platform-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.dataset.platform === platform) {
+                    tab.classList.add('active');
+                }
+            });
+            renderReviews(platform);
+        }
+
+        async function startAnalyze() {
+            if (!currentData) return;
+
+            const btn = document.getElementById('analyzeBtn');
+            const section = document.getElementById('analysisSection');
+            const content = document.getElementById('analysisContent');
+
+            btn.disabled = true;
+            btn.textContent = '🤖 AI 分析中...';
+            section.classList.add('active');
+            content.innerHTML = '<div class="loading"><div class="loading-spinner"></div><span>AI 正在综合分析各平台数据...</span></div>';
+
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        origin: currentData.origin,
+                        destination: currentData.destination
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let fullText = '';
+
+                content.innerHTML = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const parsed = JSON.parse(line.slice(6));
+                                if (parsed.type === 'chunk') {
+                                    fullText += parsed.content;
+                                    content.innerHTML = formatMarkdown(fullText) + '<span class="typing-cursor"></span>';
+                                    content.scrollTop = content.scrollHeight;
+                                } else if (parsed.type === 'done') {
+                                    content.innerHTML = formatMarkdown(fullText);
+                                } else if (parsed.type === 'error') {
+                                    content.innerHTML += `<p style="color:var(--danger)">分析出错: ${parsed.content}</p>`;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+            } catch (error) {
+                content.innerHTML = `<p style="color:var(--danger)">请求失败: ${error.message}</p>`;
+            }
+
+            btn.disabled = false;
+            btn.textContent = '🤖 AI 综合分析生成攻略';
+        }
+
+        function formatMarkdown(text) {
+            let html = text
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/^### (.*$)/gm, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gm, '<h3>$1</h3>')
+                .replace(/^- (.*$)/gm, '<li>$1</li>')
+                .replace(/^\d+\. (.*$)/gm, '<li>$1</li>')
+                .replace(/\n/g, '<br>');
+            
+            // Wrap consecutive li elements in ul
+            html = html.replace(/(<li>.*?<\/li>(\s*<br>)?)+/g, '<ul>$&</ul>');
+            html = html.replace(/<ul><br>/g, '<ul>');
+            html = html.replace(/<br><\/ul>/g, '</ul>');
+            
+            return html;
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,292 @@
+{
+  "origin": "查一下广州",
+  "destination": "新疆",
+  "data_type": "reviews",
+  "cached_at": "2026-06-10T15:15:28.250716",
+  "data": {
+    "success": true,
+    "schema_version": 2,
+    "destination": "新疆",
+    "mode": "fallback",
+    "platforms": {
+      "xiaohongshu": {
+        "platform": "小红书",
+        "schema_version": 2,
+        "platform_key": "xiaohongshu",
+        "icon": "📕",
+        "domain": "xiaohongshu.com",
+        "query": "新疆 旅游攻略 笔记 避坑 site:xiaohongshu.com",
+        "items": [
+          {
+            "title": "打开搜索结果：新疆 旅游攻略 笔记 避坑 site:xiaohongshu.com",
+            "url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E7%AC%94%E8%AE%B0+%E9%81%BF%E5%9D%91+site%3Axiaohongshu.com",
+            "source": "搜索入口",
+            "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "content": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "publish_date": "",
+            "views": null,
+            "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E7%AC%94%E8%AE%B0+%E9%81%BF%E5%9D%91+site%3Axiaohongshu.com",
+            "is_fallback": true,
+            "platform": "小红书",
+            "platform_key": "xiaohongshu",
+            "tags": [
+              "公开搜索",
+              "小红书"
+            ],
+            "item_type": "public_search_result"
+          }
+        ],
+        "reviews": [
+          {
+            "title": "打开搜索结果：新疆 旅游攻略 笔记 避坑 site:xiaohongshu.com",
+            "url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E7%AC%94%E8%AE%B0+%E9%81%BF%E5%9D%91+site%3Axiaohongshu.com",
+            "source": "搜索入口",
+            "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "content": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "publish_date": "",
+            "views": null,
+            "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E7%AC%94%E8%AE%B0+%E9%81%BF%E5%9D%91+site%3Axiaohongshu.com",
+            "is_fallback": true,
+            "platform": "小红书",
+            "platform_key": "xiaohongshu",
+            "tags": [
+              "公开搜索",
+              "小红书"
+            ],
+            "item_type": "public_search_result"
+          }
+        ],
+        "avg_rating": null,
+        "total_reviews": 1,
+        "total_items": 1,
+        "mode": "fallback",
+        "engine": "fallback",
+        "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E7%AC%94%E8%AE%B0+%E9%81%BF%E5%9D%91+site%3Axiaohongshu.com",
+        "warning": "公开搜索暂时不可用，已提供可点击的搜索入口。"
+      },
+      "douyin": {
+        "platform": "抖音",
+        "schema_version": 2,
+        "platform_key": "douyin",
+        "icon": "🎵",
+        "domain": "douyin.com",
+        "query": "新疆 旅游 攻略 vlog 打卡 site:douyin.com",
+        "items": [
+          {
+            "title": "打开搜索结果：新疆 旅游 攻略 vlog 打卡 site:douyin.com",
+            "url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8+%E6%94%BB%E7%95%A5+vlog+%E6%89%93%E5%8D%A1+site%3Adouyin.com",
+            "source": "搜索入口",
+            "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "content": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "publish_date": "",
+            "views": null,
+            "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8+%E6%94%BB%E7%95%A5+vlog+%E6%89%93%E5%8D%A1+site%3Adouyin.com",
+            "is_fallback": true,
+            "platform": "抖音",
+            "platform_key": "douyin",
+            "tags": [
+              "公开搜索",
+              "抖音"
+            ],
+            "item_type": "public_search_result"
+          }
+        ],
+        "reviews": [
+          {
+            "title": "打开搜索结果：新疆 旅游 攻略 vlog 打卡 site:douyin.com",
+            "url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8+%E6%94%BB%E7%95%A5+vlog+%E6%89%93%E5%8D%A1+site%3Adouyin.com",
+            "source": "搜索入口",
+            "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "content": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "publish_date": "",
+            "views": null,
+            "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8+%E6%94%BB%E7%95%A5+vlog+%E6%89%93%E5%8D%A1+site%3Adouyin.com",
+            "is_fallback": true,
+            "platform": "抖音",
+            "platform_key": "douyin",
+            "tags": [
+              "公开搜索",
+              "抖音"
+            ],
+            "item_type": "public_search_result"
+          }
+        ],
+        "avg_rating": null,
+        "total_reviews": 1,
+        "total_items": 1,
+        "mode": "fallback",
+        "engine": "fallback",
+        "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8+%E6%94%BB%E7%95%A5+vlog+%E6%89%93%E5%8D%A1+site%3Adouyin.com",
+        "warning": "公开搜索暂时不可用，已提供可点击的搜索入口。"
+      },
+      "dianping": {
+        "platform": "大众点评",
+        "schema_version": 2,
+        "platform_key": "dianping",
+        "icon": "⭐",
+        "domain": "dianping.com",
+        "query": "新疆 景点 美食 酒店 评价 site:dianping.com",
+        "items": [
+          {
+            "title": "打开搜索结果：新疆 景点 美食 酒店 评价 site:dianping.com",
+            "url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%99%AF%E7%82%B9+%E7%BE%8E%E9%A3%9F+%E9%85%92%E5%BA%97+%E8%AF%84%E4%BB%B7+site%3Adianping.com",
+            "source": "搜索入口",
+            "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "content": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "publish_date": "",
+            "views": null,
+            "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%99%AF%E7%82%B9+%E7%BE%8E%E9%A3%9F+%E9%85%92%E5%BA%97+%E8%AF%84%E4%BB%B7+site%3Adianping.com",
+            "is_fallback": true,
+            "platform": "大众点评",
+            "platform_key": "dianping",
+            "tags": [
+              "公开搜索",
+              "大众点评"
+            ],
+            "item_type": "public_search_result"
+          }
+        ],
+        "reviews": [
+          {
+            "title": "打开搜索结果：新疆 景点 美食 酒店 评价 site:dianping.com",
+            "url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%99%AF%E7%82%B9+%E7%BE%8E%E9%A3%9F+%E9%85%92%E5%BA%97+%E8%AF%84%E4%BB%B7+site%3Adianping.com",
+            "source": "搜索入口",
+            "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "content": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "publish_date": "",
+            "views": null,
+            "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%99%AF%E7%82%B9+%E7%BE%8E%E9%A3%9F+%E9%85%92%E5%BA%97+%E8%AF%84%E4%BB%B7+site%3Adianping.com",
+            "is_fallback": true,
+            "platform": "大众点评",
+            "platform_key": "dianping",
+            "tags": [
+              "公开搜索",
+              "大众点评"
+            ],
+            "item_type": "public_search_result"
+          }
+        ],
+        "avg_rating": null,
+        "total_reviews": 1,
+        "total_items": 1,
+        "mode": "fallback",
+        "engine": "fallback",
+        "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%99%AF%E7%82%B9+%E7%BE%8E%E9%A3%9F+%E9%85%92%E5%BA%97+%E8%AF%84%E4%BB%B7+site%3Adianping.com",
+        "warning": "公开搜索暂时不可用，已提供可点击的搜索入口。"
+      },
+      "mafengwo": {
+        "platform": "马蜂窝",
+        "schema_version": 2,
+        "platform_key": "mafengwo",
+        "icon": "🐝",
+        "domain": "mafengwo.cn",
+        "query": "新疆 自由行 游记 攻略 site:mafengwo.cn",
+        "items": [
+          {
+            "title": "打开搜索结果：新疆 自由行 游记 攻略 site:mafengwo.cn",
+            "url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E8%87%AA%E7%94%B1%E8%A1%8C+%E6%B8%B8%E8%AE%B0+%E6%94%BB%E7%95%A5+site%3Amafengwo.cn",
+            "source": "搜索入口",
+            "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "content": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "publish_date": "",
+            "views": null,
+            "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E8%87%AA%E7%94%B1%E8%A1%8C+%E6%B8%B8%E8%AE%B0+%E6%94%BB%E7%95%A5+site%3Amafengwo.cn",
+            "is_fallback": true,
+            "platform": "马蜂窝",
+            "platform_key": "mafengwo",
+            "tags": [
+              "公开搜索",
+              "马蜂窝"
+            ],
+            "item_type": "public_search_result"
+          }
+        ],
+        "reviews": [
+          {
+            "title": "打开搜索结果：新疆 自由行 游记 攻略 site:mafengwo.cn",
+            "url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E8%87%AA%E7%94%B1%E8%A1%8C+%E6%B8%B8%E8%AE%B0+%E6%94%BB%E7%95%A5+site%3Amafengwo.cn",
+            "source": "搜索入口",
+            "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "content": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "publish_date": "",
+            "views": null,
+            "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E8%87%AA%E7%94%B1%E8%A1%8C+%E6%B8%B8%E8%AE%B0+%E6%94%BB%E7%95%A5+site%3Amafengwo.cn",
+            "is_fallback": true,
+            "platform": "马蜂窝",
+            "platform_key": "mafengwo",
+            "tags": [
+              "公开搜索",
+              "马蜂窝"
+            ],
+            "item_type": "public_search_result"
+          }
+        ],
+        "avg_rating": null,
+        "total_reviews": 1,
+        "total_items": 1,
+        "mode": "fallback",
+        "engine": "fallback",
+        "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E8%87%AA%E7%94%B1%E8%A1%8C+%E6%B8%B8%E8%AE%B0+%E6%94%BB%E7%95%A5+site%3Amafengwo.cn",
+        "warning": "公开搜索暂时不可用，已提供可点击的搜索入口。"
+      },
+      "ctrip": {
+        "platform": "携程",
+        "schema_version": 2,
+        "platform_key": "ctrip",
+        "icon": "✈️",
+        "domain": "ctrip.com",
+        "query": "新疆 旅游攻略 景点 门票 酒店 site:ctrip.com",
+        "items": [
+          {
+            "title": "打开搜索结果：新疆 旅游攻略 景点 门票 酒店 site:ctrip.com",
+            "url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E6%99%AF%E7%82%B9+%E9%97%A8%E7%A5%A8+%E9%85%92%E5%BA%97+site%3Actrip.com",
+            "source": "搜索入口",
+            "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "content": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "publish_date": "",
+            "views": null,
+            "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E6%99%AF%E7%82%B9+%E9%97%A8%E7%A5%A8+%E9%85%92%E5%BA%97+site%3Actrip.com",
+            "is_fallback": true,
+            "platform": "携程",
+            "platform_key": "ctrip",
+            "tags": [
+              "公开搜索",
+              "携程"
+            ],
+            "item_type": "public_search_result"
+          }
+        ],
+        "reviews": [
+          {
+            "title": "打开搜索结果：新疆 旅游攻略 景点 门票 酒店 site:ctrip.com",
+            "url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E6%99%AF%E7%82%B9+%E9%97%A8%E7%A5%A8+%E9%85%92%E5%BA%97+site%3Actrip.com",
+            "source": "搜索入口",
+            "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "content": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+            "publish_date": "",
+            "views": null,
+            "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E6%99%AF%E7%82%B9+%E9%97%A8%E7%A5%A8+%E9%85%92%E5%BA%97+site%3Actrip.com",
+            "is_fallback": true,
+            "platform": "携程",
+            "platform_key": "ctrip",
+            "tags": [
+              "公开搜索",
+              "携程"
+            ],
+            "item_type": "public_search_result"
+          }
+        ],
+        "avg_rating": null,
+        "total_reviews": 1,
+        "total_items": 1,
+        "mode": "fallback",
+        "engine": "fallback",
+        "source_url": "https://duckduckgo.com/?q=%E6%96%B0%E7%96%86+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E6%99%AF%E7%82%B9+%E9%97%A8%E7%A5%A8+%E9%85%92%E5%BA%97+site%3Actrip.com",
+        "warning": "公开搜索暂时不可用，已提供可点击的搜索入口。"
+      }
+    },
+    "total_reviews": 5,
+    "total_items": 5,
+    "warning": "公开搜索暂时不可用，已提供可点击的搜索入口。；公开搜索暂时不可用，已提供可点击的搜索入口。"
+  }
+}

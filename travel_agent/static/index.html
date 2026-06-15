@@ -1,0 +1,2489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>旅行助手 Agent</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --bg-primary: #0f0f1a;
+            --bg-secondary: #1a1a2e;
+            --bg-card: #16213e;
+            --accent: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.3);
+            --text-primary: #e8e8e8;
+            --text-secondary: #8892b0;
+            --text-muted: #64748b;
+            --border: rgba(0, 212, 255, 0.15);
+            --tool-bg: rgba(0, 212, 255, 0.08);
+            --success: #00ff88;
+            --danger: #ff6b6b;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        /* ========== 左侧面板 ========== */
+        .sidebar {
+            width: 300px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 24px 16px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            padding: 0 8px;
+        }
+
+        .logo-icon {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--accent), #7b2ff7);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .logo-text h1 {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo-text p {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 2px;
+        }
+
+        .tools-section h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+            padding: 0 8px;
+        }
+
+        .tool-card {
+            background: var(--tool-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tool-card:hover {
+            border-color: var(--accent);
+            background: rgba(0, 212, 255, 0.15);
+            transform: translateX(4px);
+        }
+
+        .tool-card .tool-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 4px;
+        }
+
+        .tool-card .tool-desc {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .agent-section {
+            margin-top: 16px;
+        }
+
+        .agent-section h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            padding: 0 8px;
+        }
+
+        .agent-card {
+            background: var(--tool-bg);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .agent-card:hover {
+            border-color: var(--accent);
+            background: rgba(0, 212, 255, 0.15);
+            transform: translateX(4px);
+        }
+
+        .agent-card.active {
+            border-color: var(--accent);
+            background: rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        .agent-card .agent-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .agent-card .agent-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .agent-card .agent-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .agent-card .agent-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .agent-card .agent-check {
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: all 0.3s;
+        }
+
+        .agent-card.active .agent-check {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .agent-card.active .agent-check::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .agent-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            padding: 0 4px;
+        }
+
+        .agent-action-btn {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            text-align: center;
+        }
+
+        .agent-action-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .agent-action-btn.primary {
+            background: linear-gradient(135deg, var(--accent), #7b2ff7);
+            border: none;
+            color: white;
+        }
+
+        .agent-action-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 10px var(--accent-glow);
+        }
+
+        .examples-section {
+            margin-top: auto;
+        }
+
+        .examples-section h3 {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            padding: 0 8px;
+        }
+
+        .example-btn {
+            display: block;
+            width: 100%;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            text-align: left;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .example-btn:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            background: var(--tool-bg);
+        }
+
+        /* ========== 主聊天区 ========== */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .chat-header span {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+            scroll-behavior: smooth;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 3px;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message.user .msg-content {
+            background: linear-gradient(135deg, #1e3a5f, #16213e);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            border-radius: 16px 16px 4px 16px;
+            padding: 14px 18px;
+            max-width: 70%;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .message.agent {
+            display: flex;
+            justify-content: flex-start;
+        }
+
+        .message.agent .msg-content {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px 16px 16px 4px;
+            padding: 14px 18px;
+            max-width: 80%;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        /* 工具调用卡片 */
+        .tool-call-card {
+            background: var(--tool-bg);
+            border: 1px solid var(--accent);
+            border-left: 3px solid var(--accent);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+
+        .tool-call-card .tc-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: var(--accent);
+            font-weight: 500;
+        }
+
+        .tool-call-card .tc-header .icon {
+            font-size: 16px;
+        }
+
+        .tool-call-card .tc-args {
+            background: rgba(0,0,0,0.2);
+            padding: 8px 10px;
+            border-radius: 6px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        /* 工具结果卡片 */
+        .tool-result-card {
+            background: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+            border-left: 3px solid var(--success);
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin: 10px 0;
+            font-size: 13px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .tool-result-card .tr-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            color: var(--success);
+            font-weight: 500;
+        }
+
+        /* 邮件发送按钮 */
+        .email-send-card {
+            background: linear-gradient(135deg, rgba(123, 47, 247, 0.1), rgba(0, 212, 255, 0.1));
+            border: 1px solid rgba(123, 47, 247, 0.3);
+            border-radius: 10px;
+            padding: 16px;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .email-send-card p {
+            margin-bottom: 12px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .send-email-btn {
+            background: linear-gradient(135deg, var(--accent), #7b2ff7);
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .send-email-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        /* 加载动画 */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+
+        .typing-indicator span {
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: bounce 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes bounce {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+
+        /* ========== 输入区 ========== */
+        .input-area {
+            padding: 16px 24px 24px;
+            border-top: 1px solid var(--border);
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 6px;
+            transition: border-color 0.3s;
+        }
+
+        .input-wrapper:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .input-wrapper input {
+            flex: 1;
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            font-size: 14px;
+            padding: 10px 14px;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .input-wrapper input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, var(--accent), #7b2ff7);
+            border: none;
+            color: white;
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.3s;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .send-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ========== 欢迎区 ========== */
+        .welcome {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .welcome-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .welcome h2 {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent), #7b2ff7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .welcome p {
+            color: var(--text-secondary);
+            font-size: 14px;
+            max-width: 500px;
+            line-height: 1.8;
+        }
+
+        /* 标记语言渲染 */
+        .msg-content strong, .msg-content b {
+            color: var(--accent);
+        }
+
+        .msg-content ul, .msg-content ol {
+            padding-left: 20px;
+            margin: 8px 0;
+        }
+
+        .msg-content li {
+            margin: 4px 0;
+        }
+
+        .msg-content code {
+            background: rgba(0,0,0,0.3);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Consolas', monospace;
+            font-size: 12px;
+        }
+
+        /* ========== 模态框 ========== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 32px;
+            width: 90%;
+            max-width: 480px;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .modal-header .modal-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--accent), #7b2ff7);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .modal-header h3 {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .modal-header p {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        .modal-steps {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .step-indicator {
+            flex: 1;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+
+        .step-indicator.active {
+            background: linear-gradient(90deg, var(--accent), #7b2ff7);
+        }
+
+        .step-indicator.completed {
+            background: var(--success);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .form-group .help-text {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .form-group .help-text a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+            border: none;
+        }
+
+        .btn-secondary {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent);
+            color: var(--text-primary);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent), #7b2ff7);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--accent-glow);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* 邮件预览 */
+        .email-preview {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .email-preview .preview-label {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .email-preview .preview-content {
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        /* 发送状态 */
+        .sending-status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px;
+            background: var(--tool-bg);
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .sending-status.success {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+        }
+
+        .sending-status.error {
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+        }
+
+        .sending-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ========== + 按钮和功能菜单 ========== */
+        .plus-btn {
+            width: 44px;
+            height: 44px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--accent);
+            font-size: 24px;
+            font-weight: 300;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .plus-btn:hover {
+            background: var(--accent);
+            color: white;
+            transform: rotate(45deg);
+        }
+
+        .plus-btn.active {
+            background: var(--accent);
+            color: white;
+            transform: rotate(45deg);
+        }
+
+        .feature-menu {
+            display: none;
+            position: absolute;
+            bottom: 100%;
+            left: 0;
+            right: 0;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px 16px 0 0;
+            padding: 16px;
+            margin-bottom: 8px;
+            animation: slideUp 0.3s ease;
+        }
+
+        .feature-menu.active {
+            display: block;
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .feature-menu-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .feature-menu-header span {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .feature-menu-close {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 4px;
+            line-height: 1;
+        }
+
+        .feature-menu-close:hover {
+            color: var(--text-primary);
+        }
+
+        .feature-menu-items {
+            display: flex;
+            gap: 12px;
+        }
+
+        .feature-item {
+            flex: 1;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .feature-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+        }
+
+        .feature-info {
+            flex: 1;
+        }
+
+        .feature-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .feature-desc {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        /* ========== 搜索结果展示 ========== */
+        .search-results-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 12px 0;
+        }
+
+        .search-results-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .search-results-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        .search-results-badge {
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .search-result-item {
+            background: var(--bg-card);
+            border: 1px solid rgba(0, 212, 255, 0.08);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .search-result-item:hover {
+            border-color: var(--accent);
+        }
+
+        .search-result-item h4,
+        .search-result-item a.search-result-title-link {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--accent);
+            margin-bottom: 6px;
+            text-decoration: none;
+            line-height: 1.45;
+        }
+
+        .search-result-item a.search-result-title-link:hover {
+            text-decoration: underline;
+        }
+
+        .search-result-item p {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        .search-result-meta {
+            display: flex;
+            gap: 12px;
+            margin-top: 8px;
+            font-size: 11px;
+            color: var(--text-muted);
+            flex-wrap: wrap;
+        }
+
+        .search-status {
+            background: rgba(0, 212, 255, 0.06);
+            border: 1px solid rgba(0, 212, 255, 0.12);
+            color: var(--text-secondary);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-bottom: 12px;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        .search-warning {
+            color: #fbbf24;
+        }
+
+        .source-link {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .source-link:hover {
+            text-decoration: underline;
+        }
+
+        .empty-state {
+            color: var(--text-secondary);
+            font-size: 12px;
+            padding: 14px;
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+        }
+
+        /* ========== 平台评论卡片 ========== */
+        .review-card {
+            background: var(--bg-card);
+            border-radius: 10px;
+            padding: 14px;
+            margin-bottom: 10px;
+        }
+
+        .review-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .review-user {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .review-avatar {
+            width: 28px;
+            height: 28px;
+            background: var(--bg-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .review-name {
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .review-rating {
+            font-size: 12px;
+            color: var(--warning, #f59e0b);
+        }
+
+        .review-content {
+            font-size: 12px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: 8px;
+        }
+
+        .review-tags {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .review-tag {
+            background: var(--bg-primary);
+            color: var(--accent);
+            padding: 3px 8px;
+            border-radius: 6px;
+            font-size: 10px;
+        }
+
+        .platform-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .platform-tab {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .platform-tab.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        .platform-tab:hover:not(.active) {
+            border-color: var(--accent);
+        }
+
+        /* ========== 输入区域相对定位 ========== */
+        .input-area {
+            position: relative;
+        }
+
+        /* ========== 打字光标动画 ========== */
+        .typing-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 16px;
+            background: var(--accent);
+            margin-left: 2px;
+            vertical-align: text-bottom;
+            animation: blink 0.8s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 左侧面板 -->
+        <div class="sidebar">
+            <div class="logo">
+                <div class="logo-icon">&#9992;</div>
+                <div class="logo-text">
+                    <h1>旅行助手 Agent</h1>
+                    <p>AI-powered Travel Planner</p>
+                </div>
+            </div>
+
+            <div class="agent-section">
+                <h3>Agent 功能</h3>
+                <div class="agent-card" data-agent="demand" onclick="toggleAgent(this)">
+                    <div class="agent-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6)">&#128269;</div>
+                    <div class="agent-info">
+                        <div class="agent-name">需求分析</div>
+                        <div class="agent-desc">理解旅行需求，提取关键信息</div>
+                    </div>
+                    <div class="agent-check"></div>
+                </div>
+                <div class="agent-card" data-agent="scenic" onclick="toggleAgent(this)">
+                    <div class="agent-icon" style="background: linear-gradient(135deg, #10b981, #059669)">&#127965;</div>
+                    <div class="agent-info">
+                        <div class="agent-name">景点推荐</div>
+                        <div class="agent-desc">搜索筛选适合的景点</div>
+                    </div>
+                    <div class="agent-check"></div>
+                </div>
+                <div class="agent-card" data-agent="route" onclick="toggleAgent(this)">
+                    <div class="agent-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706)">&#128506;</div>
+                    <div class="agent-info">
+                        <div class="agent-name">路线规划</div>
+                        <div class="agent-desc">合理安排行程路线</div>
+                    </div>
+                    <div class="agent-check"></div>
+                </div>
+                <div class="agent-card" data-agent="hotel" onclick="toggleAgent(this)">
+                    <div class="agent-icon" style="background: linear-gradient(135deg, #ec4899, #db2777)">&#127976;</div>
+                    <div class="agent-info">
+                        <div class="agent-name">酒店推荐</div>
+                        <div class="agent-desc">找最佳住宿方案</div>
+                    </div>
+                    <div class="agent-check"></div>
+                </div>
+                <div class="agent-card" data-agent="transport" onclick="toggleAgent(this)">
+                    <div class="agent-icon" style="background: linear-gradient(135deg, #3b82f6, #2563eb)">&#128652;</div>
+                    <div class="agent-info">
+                        <div class="agent-name">交通规划</div>
+                        <div class="agent-desc">规划出行交通方案</div>
+                    </div>
+                    <div class="agent-check"></div>
+                </div>
+                <div class="agent-card" data-agent="budget" onclick="toggleAgent(this)">
+                    <div class="agent-icon" style="background: linear-gradient(135deg, #14b8a6, #0d9488)">&#128176;</div>
+                    <div class="agent-info">
+                        <div class="agent-name">预算计算</div>
+                        <div class="agent-desc">自动计算旅行花费</div>
+                    </div>
+                    <div class="agent-check"></div>
+                </div>
+                <div class="agent-card" data-agent="risk" onclick="toggleAgent(this)">
+                    <div class="agent-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626)">&#9888;&#65039;</div>
+                    <div class="agent-info">
+                        <div class="agent-name">风险提醒</div>
+                        <div class="agent-desc">天气和出行风险预警</div>
+                    </div>
+                    <div class="agent-check"></div>
+                </div>
+                <div class="agent-card" data-agent="guide" onclick="toggleAgent(this)">
+                    <div class="agent-icon" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed)">&#128214;</div>
+                    <div class="agent-info">
+                        <div class="agent-name">攻略生成</div>
+                        <div class="agent-desc">生成完整旅行攻略</div>
+                    </div>
+                    <div class="agent-check"></div>
+                </div>
+                <div class="agent-actions">
+                    <button class="agent-action-btn" onclick="selectAllAgents()">全选</button>
+                    <button class="agent-action-btn" onclick="clearAllAgents()">清除</button>
+                    <button class="agent-action-btn primary" onclick="runSelectedAgents()">运行选中</button>
+                </div>
+            </div>
+
+            <div class="examples-section">
+                <h3>快速试试</h3>
+                <button class="example-btn" onclick="fillInput(this)">我下周要去北京玩3天，帮我查天气和火车票</button>
+                <button class="example-btn" onclick="fillInput(this)">查一下成都和杭州的天气</button>
+                <button class="example-btn" onclick="fillInput(this)">帮我查从广州到西安的火车票</button>
+                <button class="example-btn" onclick="fillInput(this)">帮我规划上海到北京的旅行，顺便给朋友发邮件邀请</button>
+            </div>
+        </div>
+
+        <!-- 主聊天区 -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="status-dot"></div>
+                <span>Agent 就绪 - 使用小米 MiMo API</span>
+            </div>
+
+            <div class="messages" id="messages">
+                <div class="welcome" id="welcome">
+                    <div class="welcome-icon">&#9992;&#65039;</div>
+                    <h2>旅行助手 Agent</h2>
+                    <p>我是你的 AI 旅行助手，可以帮你查询天气、搜索火车票、生成旅行邮件。告诉我你的旅行计划吧！</p>
+                </div>
+            </div>
+
+            <div class="input-area">
+                <!-- 功能菜单 -->
+                <div class="feature-menu" id="featureMenu">
+                    <div class="feature-menu-header">
+                        <span>扩展功能</span>
+                        <button class="feature-menu-close" onclick="toggleFeatureMenu()">&times;</button>
+                    </div>
+                    <div class="feature-menu-items">
+                        <div class="feature-item" onclick="startWebSearch()">
+                            <div class="feature-icon" style="background: linear-gradient(135deg, #6366f1, #8b5cf6)">🌐</div>
+                            <div class="feature-info">
+                                <div class="feature-name">网页搜索</div>
+                                <div class="feature-desc">搜索旅游攻略网页信息</div>
+                            </div>
+                        </div>
+                        <div class="feature-item" onclick="startPlatformSearch()">
+                            <div class="feature-icon" style="background: linear-gradient(135deg, #10b981, #059669)">💬</div>
+                            <div class="feature-info">
+                                <div class="feature-name">多平台评论</div>
+                                <div class="feature-desc">小红书/抖音/大众点评评论</div>
+                            </div>
+                        </div>
+                        <div class="feature-item" onclick="startAIAnalysis()">
+                            <div class="feature-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706)">🤖</div>
+                            <div class="feature-info">
+                                <div class="feature-name">AI综合分析</div>
+                                <div class="feature-desc">一键生成完整旅游攻略</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-wrapper">
+                    <button class="plus-btn" id="plusBtn" onclick="toggleFeatureMenu()">+</button>
+                    <input type="text" id="userInput" placeholder="输入你的旅行需求..." onkeydown="if(event.key==='Enter')sendMessage()">
+                    <button class="send-btn" id="sendBtn" onclick="sendMessage()">&#10148;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 邮箱输入模态框 -->
+    <div class="modal-overlay" id="emailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon">&#9993;</div>
+                <div>
+                    <h3 id="modalTitle">发送旅行邀请邮件</h3>
+                    <p id="modalSubtitle">第 1 步：输入您的邮箱信息</p>
+                </div>
+            </div>
+
+            <div class="modal-steps">
+                <div class="step-indicator active" id="step1"></div>
+                <div class="step-indicator" id="step2"></div>
+                <div class="step-indicator" id="step3"></div>
+            </div>
+
+            <!-- 步骤1：发件人邮箱 -->
+            <div id="step1Content">
+                <div class="form-group">
+                    <label>您的邮箱地址</label>
+                    <input type="email" id="senderEmail" placeholder="例如：yourname@qq.com">
+                    <div class="help-text" id="smtpHelp"></div>
+                </div>
+                <div class="form-group">
+                    <label>邮箱授权码 / 密码</label>
+                    <input type="password" id="senderPassword" placeholder="QQ/163邮箱需要授权码">
+                    <div class="help-text">QQ邮箱和163邮箱需要使用授权码，不是登录密码。<a href="#" onclick="showSmtpHelp()">查看帮助</a></div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="closeEmailModal()">取消</button>
+                    <button class="btn btn-primary" onclick="nextStep(2)">下一步</button>
+                </div>
+            </div>
+
+            <!-- 步骤2：收件人邮箱 -->
+            <div id="step2Content" style="display:none">
+                <div class="form-group">
+                    <label>收件人称呼</label>
+                    <input type="text" id="receiverName" placeholder="例如：张三（可选）">
+                </div>
+                <div class="form-group">
+                    <label>收件人邮箱地址</label>
+                    <input type="email" id="receiverEmail" placeholder="例如：friend@example.com">
+                </div>
+                <div class="modal-actions">
+                    <button class="btn btn-secondary" onclick="prevStep(1)">上一步</button>
+                    <button class="btn btn-primary" onclick="nextStep(3)">确认并发送</button>
+                </div>
+            </div>
+
+            <!-- 步骤3：预览并发送 -->
+            <div id="step3Content" style="display:none">
+                <div class="email-preview">
+                    <div class="preview-label">邮件预览</div>
+                    <div class="preview-content" id="emailPreviewContent"></div>
+                </div>
+                <div id="sendingStatus"></div>
+                <div class="modal-actions" id="step3Actions">
+                    <button class="btn btn-secondary" onclick="prevStep(2)">上一步</button>
+                    <button class="btn btn-primary" id="confirmSendBtn" onclick="sendRealEmail()">确认发送</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SMTP 帮助模态框 -->
+    <div class="modal-overlay" id="smtpHelpModal">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-icon">&#128270;</div>
+                <div>
+                    <h3>SMTP 授权码获取帮助</h3>
+                    <p>不同邮箱的授权码获取方式</p>
+                </div>
+            </div>
+            <div id="smtpHelpContent" style="margin-bottom: 20px; line-height: 1.8; font-size: 14px;"></div>
+            <div class="modal-actions">
+                <button class="btn btn-primary" onclick="closeSmtpHelp()">知道了</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const messagesDiv = document.getElementById('messages');
+        const userInput = document.getElementById('userInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const welcome = document.getElementById('welcome');
+        let isProcessing = false;
+
+        // 邮件相关状态
+        let pendingMessage = '';  // 保存待处理的用户消息
+        let currentStep = 1;
+        let currentSearchData = null;  // 保存搜索结果
+
+        // ========== Agent 选择功能 ==========
+        const selectedAgents = new Set();
+
+        function toggleAgent(card) {
+            const agentType = card.dataset.agent;
+            if (selectedAgents.has(agentType)) {
+                selectedAgents.delete(agentType);
+                card.classList.remove('active');
+            } else {
+                selectedAgents.add(agentType);
+                card.classList.add('active');
+            }
+            updateInputPlaceholder();
+        }
+
+        function selectAllAgents() {
+            document.querySelectorAll('.agent-card').forEach(card => {
+                selectedAgents.add(card.dataset.agent);
+                card.classList.add('active');
+            });
+            updateInputPlaceholder();
+        }
+
+        function clearAllAgents() {
+            selectedAgents.clear();
+            document.querySelectorAll('.agent-card').forEach(card => {
+                card.classList.remove('active');
+            });
+            updateInputPlaceholder();
+        }
+
+        function updateInputPlaceholder() {
+            const input = document.getElementById('userInput');
+            if (selectedAgents.size === 0) {
+                input.placeholder = '输入你的旅行需求...';
+            } else if (selectedAgents.size === 1) {
+                const agentNames = {
+                    demand: '需求分析',
+                    scenic: '景点推荐',
+                    route: '路线规划',
+                    hotel: '酒店推荐',
+                    transport: '交通规划',
+                    budget: '预算计算',
+                    risk: '风险提醒',
+                    guide: '攻略生成'
+                };
+                const name = agentNames[[...selectedAgents][0]];
+                input.placeholder = `已选择 [${name}] Agent，请输入旅行需求...`;
+            } else {
+                input.placeholder = `已选择 ${selectedAgents.size} 个 Agent，请输入旅行需求...`;
+            }
+        }
+
+        async function runSelectedAgents() {
+            const msg = userInput.value.trim();
+            if (!msg) {
+                alert('请先输入旅行需求，例如：从广州到新疆');
+                userInput.focus();
+                return;
+            }
+            if (selectedAgents.size === 0) {
+                alert('请至少选择一个 Agent');
+                return;
+            }
+            if (isProcessing) return;
+
+            isProcessing = true;
+            sendBtn.disabled = true;
+            userInput.value = '';
+
+            const agents = [...selectedAgents];
+            const agentNames = {
+                demand: '需求分析',
+                scenic: '景点推荐',
+                route: '路线规划',
+                hotel: '酒店推荐',
+                transport: '交通规划',
+                budget: '预算计算',
+                risk: '风险提醒',
+                guide: '攻略生成'
+            };
+            const agentIcons = {
+                demand: '📋', scenic: '🏞️', route: '🗺️', hotel: '🏨',
+                transport: '🚄', budget: '💰', risk: '⚠️', guide: '📖'
+            };
+            const agentLabel = agents.map(a => agentNames[a]).join(' + ');
+
+            // 显示用户消息
+            addMessage('user', escapeHtml(msg));
+
+            // 显示运行提示
+            addMessage('agent', `<div style="color:var(--accent);margin-bottom:8px">&#9881; 正在并行运行 ${agents.length} 个 Agent: <strong>${escapeHtml(agentLabel)}</strong></div>`);
+
+            // 为每个选中的Agent预先创建独立的输出容器
+            const agentContainers = {};
+            for (const agentType of agents) {
+                const container = document.createElement('div');
+                container.className = 'message agent';
+                container.id = `agent-container-${agentType}`;
+                container.style.flexDirection = 'column';
+                container.style.alignItems = 'flex-start';
+
+                // Agent 标题栏
+                const header = document.createElement('div');
+                header.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 12px;background:rgba(0,212,255,0.08);border-left:3px solid var(--accent);border-radius:6px;margin-bottom:8px;font-weight:600;font-size:14px;width:100%;box-sizing:border-box;';
+                header.innerHTML = `<span style="font-size:16px">${agentIcons[agentType] || '🤖'}</span> <span>${escapeHtml(agentNames[agentType])}</span> <span class="agent-status" style="margin-left:auto;font-size:12px;color:var(--text-secondary)">⏳ 等待中</span>`;
+                container.appendChild(header);
+
+                // Agent 输出内容区
+                const contentBox = document.createElement('div');
+                contentBox.className = 'msg-content';
+                contentBox.style.maxWidth = '100%';
+                contentBox.style.minHeight = '40px';
+                contentBox.innerHTML = '<span style="color:var(--text-secondary);font-size:12px">等待AI响应...</span>';
+                container.appendChild(contentBox);
+
+                messagesDiv.appendChild(container);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+
+                agentContainers[agentType] = {
+                    container,
+                    contentBox,
+                    status: header.querySelector('.agent-status'),
+                    fullText: ''
+                };
+            }
+
+            // 存储工具调用结果到对应 Agent
+            const agentToolBoxes = {};
+
+            try {
+                const response = await fetch('/api/agent-run', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg, agents: agents })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6).trim();
+                            if (data === '[DONE]') continue;
+
+                            try {
+                                const parsed = JSON.parse(data);
+                                const agentKey = parsed.agent_key;
+                                const target = agentKey ? agentContainers[agentKey] : null;
+
+                                switch (parsed.type) {
+                                    case 'agent_start':
+                                        if (target) {
+                                            target.status.innerHTML = '🔄 运行中';
+                                            target.status.style.color = 'var(--accent)';
+                                        }
+                                        break;
+
+                                    case 'tool_call':
+                                        if (target) {
+                                            // 在内容区显示工具调用
+                                            const toolDiv = document.createElement('div');
+                                            toolDiv.style.cssText = 'background:rgba(255,193,7,0.1);border-left:2px solid #ffc107;padding:6px 10px;margin:4px 0;border-radius:4px;font-size:12px;color:var(--text-secondary);';
+                                            toolDiv.innerHTML = `🔧 <strong>调用工具</strong>: ${escapeHtml(parsed.tool_name)} ${Object.keys(parsed.tool_args || {}).length ? '(' + escapeHtml(JSON.stringify(parsed.tool_args)) + ')' : ''}`;
+                                            target.contentBox.appendChild(toolDiv);
+                                        }
+                                        break;
+
+                                    case 'tool_result':
+                                        if (target) {
+                                            const resultDiv = document.createElement('div');
+                                            resultDiv.style.cssText = 'background:rgba(0,255,136,0.05);border-left:2px solid var(--success);padding:6px 10px;margin:4px 0;border-radius:4px;font-size:12px;color:var(--text-secondary);max-height:120px;overflow-y:auto;';
+                                            resultDiv.innerHTML = `📊 <strong>工具结果</strong>: ${escapeHtml(parsed.content).substring(0, 200)}${parsed.content.length > 200 ? '...' : ''}`;
+                                            target.contentBox.appendChild(resultDiv);
+                                        }
+                                        break;
+
+                                    case 'chunk':
+                                        if (target) {
+                                            // 第一次收到chunk时清空"等待AI响应"
+                                            if (target.fullText === '') {
+                                                target.contentBox.innerHTML = '';
+                                            }
+                                            target.fullText += parsed.content;
+                                            // 找到流式文本节点并更新
+                                            let textNode = target.contentBox.querySelector('.stream-text');
+                                            if (!textNode) {
+                                                textNode = document.createElement('div');
+                                                textNode.className = 'stream-text';
+                                                target.contentBox.appendChild(textNode);
+                                            }
+                                            textNode.innerHTML = formatMarkdown(target.fullText) + '<span class="typing-cursor"></span>';
+                                        }
+                                        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                                        break;
+
+                                    case 'agent_done':
+                                        if (target) {
+                                            target.status.innerHTML = '✅ 已完成';
+                                            target.status.style.color = 'var(--success)';
+                                            // 移除光标
+                                            const cursor = target.contentBox.querySelector('.typing-cursor');
+                                            if (cursor) cursor.remove();
+                                        }
+                                        break;
+
+                                    case 'agent_error':
+                                        if (target) {
+                                            target.status.innerHTML = '❌ 错误';
+                                            target.status.style.color = 'var(--danger)';
+                                            const errDiv = document.createElement('div');
+                                            errDiv.style.cssText = 'color:var(--danger);padding:8px;';
+                                            errDiv.textContent = '错误: ' + parsed.error;
+                                            target.contentBox.appendChild(errDiv);
+                                        }
+                                        break;
+
+                                    case 'final':
+                                        addMessage('agent', `<div style="color:var(--success);padding:8px 0;">🎉 ${escapeHtml(parsed.content)}</div>`);
+                                        break;
+
+                                    case 'error':
+                                        addMessage('agent', `<span style="color:var(--danger)">错误: ${escapeHtml(parsed.content)}</span>`);
+                                        break;
+                                }
+                            } catch (e) {
+                                // 忽略解析错误
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                addMessage('agent', `<span style="color:var(--danger)">请求失败: ${error.message}</span>`);
+            }
+
+            // 兜底：移除所有残留光标
+            for (const key in agentContainers) {
+                const t = agentContainers[key];
+                if (t.status.innerHTML.includes('等待中')) {
+                    t.status.innerHTML = '⚠️ 未响应';
+                    t.status.style.color = 'var(--danger)';
+                }
+                const cursor = t.contentBox.querySelector('.typing-cursor');
+                if (cursor) cursor.remove();
+            }
+
+            isProcessing = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
+
+        // ========== 功能菜单控制 ==========
+        function toggleFeatureMenu() {
+            const menu = document.getElementById('featureMenu');
+            const btn = document.getElementById('plusBtn');
+            menu.classList.toggle('active');
+            btn.classList.toggle('active');
+        }
+
+        // 关闭功能菜单（点击其他地方时）
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('featureMenu');
+            const btn = document.getElementById('plusBtn');
+            if (!menu.contains(e.target) && !btn.contains(e.target)) {
+                menu.classList.remove('active');
+                btn.classList.remove('active');
+            }
+        });
+
+        // 网页搜索功能
+        async function startWebSearch() {
+            toggleFeatureMenu();
+            const query = userInput.value.trim() || prompt('请输入搜索内容（如：从北京到上海）：');
+            if (!query) return;
+
+            isProcessing = true;
+            sendBtn.disabled = true;
+            userInput.value = '';
+            addMessage('user', `🔍 网页搜索：${escapeHtml(query)}`);
+            addTypingIndicator();
+
+            try {
+                const response = await fetch('/api/web-search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query })
+                });
+                const data = await response.json().catch(() => ({}));
+                removeTypingIndicator();
+
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
+
+                if (data.success) {
+                    currentSearchData = data;
+                    const html = renderWebResults(data);
+                    addMessage('agent', html);
+                } else {
+                    addMessage('agent', `<span style="color:var(--danger)">搜索失败：${data.message}</span>`);
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('agent', `<span style="color:var(--danger)">搜索出错：${error.message}</span>`);
+            }
+
+            isProcessing = false;
+            sendBtn.disabled = false;
+        }
+
+        // 多平台评论搜索
+        async function startPlatformSearch() {
+            toggleFeatureMenu();
+            const query = userInput.value.trim() || prompt('请输入目的地（如：上海）：');
+            if (!query) return;
+
+            isProcessing = true;
+            sendBtn.disabled = true;
+            userInput.value = '';
+            addMessage('user', `💬 多平台评论搜索：${escapeHtml(query)}`);
+            addTypingIndicator();
+
+            try {
+                const response = await fetch('/api/platform-search', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ destination: query })
+                });
+                const data = await response.json().catch(() => ({}));
+                removeTypingIndicator();
+
+                if (!response.ok) {
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
+
+                if (data.success) {
+                    currentSearchData = data;
+                    const html = renderPlatformResults(data);
+                    addMessage('agent', html);
+                } else {
+                    addMessage('agent', `<span style="color:var(--danger)">搜索失败：${data.message}</span>`);
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('agent', `<span style="color:var(--danger)">搜索出错：${error.message}</span>`);
+            }
+
+            isProcessing = false;
+            sendBtn.disabled = false;
+        }
+
+        // AI综合分析
+        async function startAIAnalysis() {
+            toggleFeatureMenu();
+            
+            // 获取出发地和目的地
+            const query = userInput.value.trim() || prompt('请输入行程（如：从北京到上海）：');
+            if (!query) return;
+
+            // 解析出发地和目的地
+            const parsedQuery = parseTravelQuery(query);
+            const origin = parsedQuery.origin;
+            const destination = parsedQuery.destination;
+
+            isProcessing = true;
+            sendBtn.disabled = true;
+            addMessage('user', `🤖 AI综合分析：${escapeHtml(origin)} → ${escapeHtml(destination)}`);
+            addTypingIndicator();
+
+            try {
+                const response = await fetch('/api/full-analysis', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ origin, destination })
+                });
+
+                if (!response.ok) {
+                    const data = await response.json().catch(() => ({}));
+                    throw new Error(data.message || `HTTP ${response.status}`);
+                }
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+                let fullText = '';
+
+                removeTypingIndicator();
+                const msgDiv = document.createElement('div');
+                msgDiv.className = 'message agent';
+                const contentDiv = document.createElement('div');
+                contentDiv.className = 'msg-content';
+                contentDiv.style.maxWidth = '85%';
+                msgDiv.appendChild(contentDiv);
+                messagesDiv.appendChild(msgDiv);
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            try {
+                                const parsed = JSON.parse(line.slice(6));
+                                if (parsed.type === 'chunk') {
+                                    fullText += parsed.content;
+                                    contentDiv.innerHTML = formatMarkdown(fullText) + '<span class="typing-cursor"></span>';
+                                    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                                } else if (parsed.type === 'done') {
+                                    contentDiv.innerHTML = formatMarkdown(fullText);
+                                } else if (parsed.type === 'error') {
+                                    contentDiv.innerHTML = `<span style="color:var(--danger)">分析出错：${escapeText(parsed.content || '未知错误')}</span>`;
+                                }
+                            } catch (e) {}
+                        }
+                    }
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('agent', `<span style="color:var(--danger)">分析出错：${error.message}</span>`);
+            }
+
+            userInput.value = '';
+            isProcessing = false;
+            sendBtn.disabled = false;
+        }
+
+        function parseTravelQuery(query) {
+            const cleaned = (query || '')
+                .replace(/的旅游攻略|旅游攻略|旅行攻略|自由行攻略|攻略|怎么玩|怎么去/g, '')
+                .trim();
+
+            const routeMatch = cleaned.match(/^从?\s*(.+?)\s*(到|去|至|前往|->|=>|—|–|-|－|~|～)\s*(.+)$/);
+            if (routeMatch) {
+                return {
+                    origin: routeMatch[1].replace(/^从/, '').trim() || '我的城市',
+                    destination: routeMatch[3].trim()
+                };
+            }
+            return { origin: '我的城市', destination: cleaned };
+        }
+
+        function renderSearchStatus(data) {
+            const parts = [];
+            if (data.mode) parts.push(`状态：${modeLabel(data.mode)}`);
+            if (data.engine) parts.push(`引擎：${data.engine}`);
+            if (data.from_cache) parts.push('来自缓存');
+            if (typeof data.search_time === 'number') parts.push(`耗时：${data.search_time}s`);
+
+            const source = safeHref(data.source_url || '');
+            let html = `<div class="search-status">${escapeText(parts.join(' · ') || '公开搜索结果')}`;
+            if (source && source !== '#') {
+                html += ` · <a class="source-link" href="${escapeAttr(source)}" target="_blank" rel="noopener noreferrer">查看搜索页</a>`;
+            }
+            if (data.warning) {
+                html += `<br><span class="search-warning">${escapeHtml(data.warning)}</span>`;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        function renderResultMeta(item) {
+            const pieces = [];
+            if (item.source) pieces.push(`📄 ${escapeText(item.source)}`);
+            if (item.publish_date) pieces.push(`📅 ${escapeText(item.publish_date)}`);
+            if (typeof item.views === 'number') pieces.push(`👁️ ${formatNumber(item.views)}浏览`);
+            return pieces.length ? `<div class="search-result-meta">${pieces.map(p => `<span>${p}</span>`).join('')}</div>` : '';
+        }
+
+        function modeLabel(mode) {
+            const labels = {
+                live: '实时公开搜索',
+                partial: '部分结果降级',
+                fallback: '搜索入口降级'
+            };
+            return labels[mode] || mode;
+        }
+
+        function formatNumber(value) {
+            if (value >= 10000) return `${(value / 10000).toFixed(1)}万`;
+            if (value >= 1000) return `${(value / 1000).toFixed(1)}k`;
+            return String(value);
+        }
+
+        function safeHref(url) {
+            try {
+                const parsed = new URL(url, window.location.origin);
+                if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+                    return parsed.href;
+                }
+            } catch (e) {}
+            return '#';
+        }
+
+        // 渲染网页搜索结果
+        function renderWebResults(data) {
+            const results = data.results || [];
+            const badge = data.mode === 'fallback' ? '搜索入口' : `${results.length} 条公开结果`;
+            let html = `
+                <div class="search-results-card">
+                    <div class="search-results-header">
+                        <div class="search-results-title">🌐 网页攻略搜索结果</div>
+                        <span class="search-results-badge">${escapeText(badge)}</span>
+                    </div>
+                    ${renderSearchStatus(data)}
+            `;
+
+            if (!results.length) {
+                html += '<div class="empty-state">暂时没有公开搜索结果。</div>';
+            }
+
+            results.forEach(item => {
+                const title = escapeText(item.title || '未命名结果');
+                const href = safeHref(item.url || item.source_url || '');
+                const snippet = escapeHtml(item.snippet || '暂无摘要');
+                html += `
+                    <div class="search-result-item">
+                        <a class="search-result-title-link" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">${title}</a>
+                        <p>${snippet}</p>
+                        ${renderResultMeta(item)}
+                    </div>
+                `;
+            });
+
+            html += '</div>';
+            return html;
+        }
+
+        // 渲染多平台评论结果
+        function renderPlatformResults(data) {
+            const platforms = data.platforms || {};
+            const groupId = `platform-${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+            const total = data.total_items || data.total_reviews || 0;
+            let html = `
+                <div class="search-results-card">
+                    <div class="search-results-header">
+                        <div class="search-results-title">💬 多平台公开结果</div>
+                        <span class="search-results-badge">${total} 条公开结果</span>
+                    </div>
+                    ${renderSearchStatus(data)}
+                    <div class="platform-tabs">
+                        <button class="platform-tab active" data-search-group="${groupId}" onclick="filterPlatform(this, 'all', '${groupId}')">全部</button>
+            `;
+
+            Object.entries(platforms).forEach(([key, val]) => {
+                html += `<button class="platform-tab" data-search-group="${escapeAttr(groupId)}" onclick="filterPlatform(this, '${escapeAttr(key)}', '${escapeAttr(groupId)}')">${escapeText(val.icon || '')} ${escapeText(val.platform || key)}</button>`;
+            });
+
+            html += '</div><div class="platform-reviews-list" data-search-group="' + escapeAttr(groupId) + '">';
+
+            Object.entries(platforms).forEach(([key, platform]) => {
+                const items = platform.items || platform.reviews || [];
+                if (!items.length) {
+                    html += `
+                        <div class="review-card" data-platform="${escapeAttr(key)}" data-search-group="${escapeAttr(groupId)}">
+                            <div class="review-content">${escapeText(platform.platform || key)}暂无公开结果。${platform.warning ? '<br><span class="search-warning">' + escapeHtml(platform.warning) + '</span>' : ''}</div>
+                        </div>
+                    `;
+                }
+                items.forEach(item => {
+                    const href = safeHref(item.url || item.source_url || '');
+                    const title = escapeText(item.title || '未命名结果');
+                    const snippet = escapeHtml(item.snippet || item.content || '暂无摘要');
+                    html += `
+                        <div class="review-card" data-platform="${escapeAttr(key)}" data-search-group="${escapeAttr(groupId)}">
+                            <div class="review-header">
+                                <div class="review-user">
+                                    <div class="review-avatar">${escapeText(platform.icon || '🔎')}</div>
+                                    <span class="review-name">${escapeText(platform.platform || key)}</span>
+                                    <span style="font-size:10px;color:var(--text-muted)">${escapeText(item.source || '')}</span>
+                                </div>
+                                <a class="source-link" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">打开来源</a>
+                            </div>
+                            <a class="search-result-title-link" href="${escapeAttr(href)}" target="_blank" rel="noopener noreferrer">${title}</a>
+                            <div class="review-content">${snippet}</div>
+                            <div class="review-tags">
+                                ${(item.tags || []).map(t => `<span class="review-tag">#${escapeText(t)}</span>`).join('')}
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+
+            html += '</div></div>';
+            return html;
+        }
+
+        // 筛选平台评论
+        function filterPlatform(btn, platform, groupId) {
+            document.querySelectorAll(`.platform-tab[data-search-group="${groupId}"]`).forEach(t => t.classList.remove('active'));
+            btn.classList.add('active');
+
+            document.querySelectorAll(`.review-card[data-search-group="${groupId}"]`).forEach(card => {
+                if (platform === 'all' || card.dataset.platform === platform) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // 检测是否包含邮件相关关键词
+        function containsEmailKeyword(text) {
+            const keywords = ['邮件', '邮箱', '发送给', '发给', '发邮件', '发邮箱', 'email', '邀请邮件', '发个'];
+            return keywords.some(kw => text.includes(kw));
+        }
+
+        // 提取收件人信息
+        function extractReceiverName(text) {
+            // 提取"给XXX发"的模式
+            const nameMatch = text.match(/给\s*([^\s,，发邮]+)\s*(发|邮件|邮箱)/);
+            if (nameMatch) return nameMatch[1];
+            return '';
+        }
+
+        function fillInput(btn) {
+            userInput.value = btn.textContent;
+            userInput.focus();
+        }
+
+        function addMessage(type, content) {
+            if (welcome) welcome.style.display = 'none';
+
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${type}`;
+
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'msg-content';
+            contentDiv.innerHTML = content;
+            msgDiv.appendChild(contentDiv);
+
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+            return contentDiv;
+        }
+
+        function addToolCall(toolName, toolArgs) {
+            const card = document.createElement('div');
+            card.className = 'message agent';
+
+            const inner = document.createElement('div');
+            inner.style.maxWidth = '80%';
+
+            const tc = document.createElement('div');
+            tc.className = 'tool-call-card';
+            tc.innerHTML = `
+                <div class="tc-header">
+                    <span class="icon">&#9881;</span>
+                    Agent 正在调用工具: <strong>${toolName}</strong>
+                </div>
+                <div class="tc-args">${JSON.stringify(toolArgs, null, 2)}</div>
+            `;
+
+            inner.appendChild(tc);
+            card.appendChild(inner);
+            messagesDiv.appendChild(card);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addToolResult(toolName, content) {
+            const card = document.createElement('div');
+            card.className = 'message agent';
+
+            const inner = document.createElement('div');
+            inner.style.maxWidth = '80%';
+
+            const tr = document.createElement('div');
+            tr.className = 'tool-result-card';
+            tr.innerHTML = `
+                <div class="tr-header">
+                    <span>&#9989;</span>
+                    工具返回: ${toolName}
+                </div>
+                ${escapeHtml(content)}
+            `;
+
+            inner.appendChild(tr);
+            card.appendChild(inner);
+            messagesDiv.appendChild(card);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const div = document.createElement('div');
+            div.className = 'message agent';
+            div.id = 'typing';
+            div.innerHTML = `
+                <div class="msg-content">
+                    <div class="typing-indicator">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            `;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const typing = document.getElementById('typing');
+            if (typing) typing.remove();
+        }
+
+        function escapeText(text) {
+            const div = document.createElement('div');
+            div.textContent = text == null ? '' : String(text);
+            return div.innerHTML;
+        }
+
+        function escapeAttr(text) {
+            return escapeText(text).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function escapeHtml(text) {
+            return escapeText(text).replace(/\n/g, '<br>');
+        }
+
+        function formatMarkdown(text) {
+            let html = escapeHtml(text);
+            html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+            html = html.replace(/\n/g, '<br>');
+            return html;
+        }
+
+        // ========== 邮件模态框控制 ==========
+        // 打开邮箱输入界面（第1步：输入自己邮箱）
+        function openEmailModalForSending(userMsg) {
+            pendingMessage = userMsg;
+            currentStep = 1;
+            updateStepUI();
+
+            // 隐藏第3步（预览），因为我们是先输入邮箱再让AI生成
+            document.getElementById('step3Content').style.display = 'none';
+
+            // 清空输入
+            document.getElementById('senderEmail').value = '';
+            document.getElementById('senderPassword').value = '';
+            document.getElementById('receiverEmail').value = '';
+            document.getElementById('receiverName').value = extractReceiverName(userMsg);
+
+            document.getElementById('emailModal').classList.add('active');
+        }
+
+        function closeEmailModal() {
+            document.getElementById('emailModal').classList.remove('active');
+            // 如果关闭弹窗，重置状态
+            pendingMessage = '';
+            isProcessing = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
+
+        function nextStep(step) {
+            // 验证当前步骤
+            if (step === 2) {
+                const email = document.getElementById('senderEmail').value.trim();
+                const password = document.getElementById('senderPassword').value.trim();
+                if (!email || !password) {
+                    alert('请填写邮箱地址和授权码');
+                    return;
+                }
+                if (!email.includes('@')) {
+                    alert('请输入有效的邮箱地址');
+                    return;
+                }
+            }
+
+            if (step === 3) {
+                const receiver = document.getElementById('receiverEmail').value.trim();
+                if (!receiver) {
+                    alert('请填写收件人邮箱');
+                    return;
+                }
+                if (!receiver.includes('@')) {
+                    alert('请输入有效的收件人邮箱');
+                    return;
+                }
+                // 第2步输入完收件人后，直接调用发送
+                // 先隐藏弹窗但不清空 pendingMessage
+                document.getElementById('emailModal').classList.remove('active');
+                sendWithEmailConfig();
+                return;
+            }
+
+            currentStep = step;
+            updateStepUI();
+        }
+
+        function prevStep(step) {
+            currentStep = step;
+            updateStepUI();
+        }
+
+        function updateStepUI() {
+            // 更新步骤指示器（只显示2步）
+            for (let i = 1; i <= 2; i++) {
+                const indicator = document.getElementById(`step${i}`);
+                indicator.className = 'step-indicator';
+                if (i < currentStep) indicator.classList.add('completed');
+                if (i === currentStep) indicator.classList.add('active');
+            }
+            // 隐藏第3步指示器
+            document.getElementById('step3').style.display = 'none';
+
+            // 显示/隐藏内容
+            document.getElementById('step1Content').style.display = currentStep === 1 ? 'block' : 'none';
+            document.getElementById('step2Content').style.display = currentStep === 2 ? 'block' : 'none';
+            document.getElementById('step3Content').style.display = 'none';
+
+            // 更新标题
+            const titles = {
+                1: ['发送旅行邀请邮件', '第 1 步：输入您的邮箱信息'],
+                2: ['发送旅行邀请邮件', '第 2 步：输入收件人邮箱']
+            };
+            const title = titles[currentStep] || titles[1];
+            document.getElementById('modalTitle').textContent = title[0];
+            document.getElementById('modalSubtitle').textContent = title[1];
+        }
+
+        function showSmtpHelp() {
+            const email = document.getElementById('senderEmail').value.trim();
+            if (!email) {
+                document.getElementById('smtpHelpContent').innerHTML = `
+                    <p>请先输入邮箱地址，系统会自动显示对应的授权码获取方法。</p>
+                    <br>
+                    <p><strong>常用邮箱授权码获取方法：</strong></p>
+                    <p>• QQ邮箱：设置 → 账户 → POP3/SMTP服务 → 开启并获取授权码</p>
+                    <p>• 163邮箱：设置 → POP3/SMTP/IMAP → 开启SMTP服务 → 获取授权码</p>
+                    <p>• Gmail：Google账号 → 安全性 → 两步验证 → 应用专用密码</p>
+                `;
+            } else {
+                fetch('/api/smtp-help', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('smtpHelpContent').innerHTML = escapeHtml(data.help).replace(/\n/g, '<br>');
+                });
+            }
+            document.getElementById('smtpHelpModal').classList.add('active');
+        }
+
+        function closeSmtpHelp() {
+            document.getElementById('smtpHelpModal').classList.remove('active');
+        }
+
+        // 带邮箱配置发送请求 - AI自动生成内容并发送
+        async function sendWithEmailConfig() {
+            const senderEmail = document.getElementById('senderEmail').value.trim();
+            const senderPassword = document.getElementById('senderPassword').value.trim();
+            const receiverEmail = document.getElementById('receiverEmail').value.trim();
+            const receiverName = document.getElementById('receiverName').value.trim();
+
+            if (!pendingMessage) return;
+
+            isProcessing = true;
+            sendBtn.disabled = true;
+
+            // 显示用户消息（如果还没显示）
+            addMessage('user', escapeHtml(pendingMessage));
+            addTypingIndicator();
+
+            try {
+                // 调用新的 API，AI 自动生成内容并发送邮件
+                const response = await fetch('/api/chat-and-send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        message: pendingMessage,
+                        sender_email: senderEmail,
+                        sender_password: senderPassword,
+                        receiver_email: receiverEmail,
+                        receiver_name: receiverName
+                    })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6).trim();
+                            if (data === '[DONE]') continue;
+
+                            try {
+                                const parsed = JSON.parse(data);
+                                removeTypingIndicator();
+
+                                switch (parsed.type) {
+                                    case 'tool_call':
+                                        addToolCall(parsed.tool_name, parsed.tool_args);
+                                        addTypingIndicator();
+                                        break;
+                                    case 'tool_result':
+                                        addToolResult(parsed.tool_name, parsed.content);
+                                        addTypingIndicator();
+                                        break;
+                                    case 'final':
+                                        addMessage('agent', formatMarkdown(parsed.content));
+                                        // 显示邮件发送结果
+                                        if (parsed.email_sent) {
+                                            addMessage('agent', `
+                                                <div class="email-send-card">
+                                                    <p>&#9989; ${escapeHtml(parsed.email_message)}</p>
+                                                    <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">
+                                                        邮件主题：${escapeHtml(parsed.email_subject)}
+                                                    </p>
+                                                </div>
+                                            `);
+                                        } else if (parsed.email_message) {
+                                            addMessage('agent', `
+                                                <div style="color: #ff6b6b;">
+                                                    &#10060; 邮件发送失败：${escapeHtml(parsed.email_message)}
+                                                </div>
+                                            `);
+                                        }
+                                        break;
+                                    case 'error':
+                                        addMessage('agent', `<span style="color:#ff6b6b">错误: ${escapeHtml(parsed.content)}</span>`);
+                                        break;
+                                }
+                            } catch (e) {
+                                // 忽略解析错误
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('agent', `<span style="color:#ff6b6b">请求失败: ${error.message}</span>`);
+            }
+
+            removeTypingIndicator();
+            pendingMessage = '';
+            isProcessing = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
+
+        // ========== 主聊天逻辑 ==========
+        async function sendMessage() {
+            const msg = userInput.value.trim();
+            if (!msg || isProcessing) return;
+
+            // 检测是否包含邮件关键词
+            if (containsEmailKeyword(msg)) {
+                // 弹出邮箱输入界面
+                openEmailModalForSending(msg);
+                userInput.value = '';
+                return;
+            }
+
+            // 普通消息处理
+            isProcessing = true;
+            sendBtn.disabled = true;
+            userInput.value = '';
+
+            addMessage('user', escapeHtml(msg));
+            addTypingIndicator();
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: msg })
+                });
+
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    const lines = buffer.split('\n');
+                    buffer = lines.pop();
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = line.slice(6).trim();
+                            if (data === '[DONE]') continue;
+
+                            try {
+                                const parsed = JSON.parse(data);
+                                removeTypingIndicator();
+
+                                switch (parsed.type) {
+                                    case 'tool_call':
+                                        addToolCall(parsed.tool_name, parsed.tool_args);
+                                        addTypingIndicator();
+                                        break;
+                                    case 'tool_result':
+                                        addToolResult(parsed.tool_name, parsed.content);
+                                        addTypingIndicator();
+                                        break;
+                                    case 'final':
+                                        addMessage('agent', formatMarkdown(parsed.content));
+                                        break;
+                                    case 'error':
+                                        addMessage('agent', `<span style="color:#ff6b6b">错误: ${escapeHtml(parsed.content)}</span>`);
+                                        break;
+                                }
+                            } catch (e) {
+                                // 忽略解析错误
+                            }
+                        }
+                    }
+                }
+            } catch (error) {
+                removeTypingIndicator();
+                addMessage('agent', `<span style="color:#ff6b6b">请求失败: ${error.message}</span>`);
+            }
+
+            removeTypingIndicator();
+            isProcessing = false;
+            sendBtn.disabled = false;
+            userInput.focus();
+        }
+    </script>
+</body>
+</html>

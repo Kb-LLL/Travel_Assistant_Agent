@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 旅行助手系统 - 项目演示</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --primary: #6C5CE7;
+    --primary-light: #A29BFE;
+    --accent: #00D2FF;
+    --accent2: #7B68EE;
+    --dark: #0F0E17;
+    --dark2: #1A1A2E;
+    --dark3: #16213E;
+    --card: rgba(255,255,255,0.06);
+    --text: #FFFFFE;
+    --text2: #A7A9BE;
+    --success: #00F5A0;
+    --warning: #FFD93D;
+    --danger: #FF6B6B;
+    --gradient1: linear-gradient(135deg, #6C5CE7, #00D2FF);
+    --gradient2: linear-gradient(135deg, #0F0E17, #1A1A2E);
+    --gradient3: linear-gradient(135deg, #6C5CE7 0%, #A29BFE 50%, #00D2FF 100%);
+  }
+
+  body {
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, sans-serif;
+    background: var(--dark);
+    color: var(--text);
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+  }
+
+  .presentation {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    opacity: 0;
+    transform: translateX(100px);
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .slide.active {
+    opacity: 1;
+    transform: translateX(0);
+    pointer-events: all;
+  }
+
+  .slide.prev {
+    opacity: 0;
+    transform: translateX(-100px);
+  }
+
+  /* ===== Background decorations ===== */
+  .slide::before {
+    content: '';
+    position: absolute;
+    top: -200px; right: -200px;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(108,92,231,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .slide::after {
+    content: '';
+    position: absolute;
+    bottom: -150px; left: -150px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,210,255,0.1) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  /* ===== Slide number ===== */
+  .slide-number {
+    position: absolute;
+    bottom: 30px; right: 40px;
+    font-size: 14px;
+    color: var(--text2);
+    font-weight: 300;
+    letter-spacing: 2px;
+  }
+
+  /* ===== Navigation ===== */
+  .nav-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 50px;
+    background: rgba(15,14,23,0.95);
+    backdrop-filter: blur(20px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    z-index: 1000;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .nav-btn {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text);
+    padding: 8px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: inherit;
+    transition: all 0.3s;
+  }
+
+  .nav-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+  }
+
+  .nav-dots {
+    display: flex;
+    gap: 6px;
+    margin: 0 20px;
+  }
+
+  .nav-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.2);
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+
+  .nav-dot.active {
+    background: var(--accent);
+    width: 24px;
+    border-radius: 4px;
+  }
+
+  /* ===== Typography ===== */
+  .slide-title {
+    font-size: 48px;
+    font-weight: 900;
+    background: var(--gradient3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .slide-subtitle {
+    font-size: 20px;
+    color: var(--text2);
+    text-align: center;
+    font-weight: 300;
+    margin-bottom: 40px;
+    max-width: 700px;
+    line-height: 1.6;
+  }
+
+  .section-label {
+    display: inline-block;
+    background: var(--gradient1);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 500;
+    margin-bottom: 20px;
+    letter-spacing: 1px;
+  }
+
+  /* ===== Cover Slide ===== */
+  .cover-content {
+    text-align: center;
+    z-index: 1;
+  }
+
+  .cover-icon {
+    font-size: 80px;
+    margin-bottom: 24px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  .cover-title {
+    font-size: 64px;
+    font-weight: 900;
+    background: var(--gradient3);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 16px;
+    letter-spacing: -1px;
+  }
+
+  .cover-desc {
+    font-size: 22px;
+    color: var(--text2);
+    font-weight: 300;
+    margin-bottom: 40px;
+  }
+
+  .cover-tags {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .cover-tag {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px 24px;
+    border-radius: 30px;
+    font-size: 15px;
+    color: var(--text2);
+    transition: all 0.3s;
+  }
+
+  .cover-tag:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* ===== Grid layouts ===== */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  .grid-4 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 1200px;
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 16px;
+    padding: 28px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card:hover {
+    border-color: rgba(108,92,231,0.3);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  }
+
+  .card-icon {
+    font-size: 36px;
+    margin-bottom: 16px;
+  }
+
+  .card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+
+  .card-desc {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.7;
+  }
+
+  .card-badge {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: var(--gradient1);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 500;
+  }
+
+  /* ===== Code blocks ===== */
+  .code-block {
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 24px;
+    font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+    font-size: 13px;
+    line-height: 1.8;
+    overflow-x: auto;
+    width: 100%;
+    max-width: 1100px;
+    position: relative;
+  }
+
+  .code-block::before {
+    content: '';
+    position: absolute;
+    top: 12px; left: 16px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .code-dots {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .code-dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+  }
+
+  .code-dot.red { background: #FF5F57; }
+  .code-dot.yellow { background: #FFBD2E; }
+  .code-dot.green { background: #28C840; }
+
+  .code-label {
+    position: absolute;
+    top: 12px; right: 16px;
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  .kw { color: #C792EA; }
+  .fn { color: #82AAFF; }
+  .st { color: #C3E88D; }
+  .cm { color: #546E7A; font-style: italic; }
+  .nb { color: #FFCB6B; }
+  .op { color: #89DDFF; }
+  .var { color: #F78C6C; }
+  .num { color: #F78C6C; }
+  .bi { color: #FFCB6B; }
+  .dc { color: #82AAFF; }
+
+  /* ===== Architecture diagram ===== */
+  .arch-container {
+    width: 100%;
+    max-width: 1100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .arch-row {
+    display: flex;
+    gap: 16px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+
+  .arch-box {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 16px 24px;
+    text-align: center;
+    min-width: 140px;
+    transition: all 0.3s;
+  }
+
+  .arch-box.highlight {
+    border-color: var(--accent);
+    box-shadow: 0 0 20px rgba(0,210,255,0.2);
+  }
+
+  .arch-box.primary {
+    border-color: var(--primary);
+    box-shadow: 0 0 20px rgba(108,92,231,0.2);
+  }
+
+  .arch-box .box-icon { font-size: 28px; margin-bottom: 8px; }
+  .arch-box .box-label { font-size: 14px; font-weight: 600; }
+  .arch-box .box-desc { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+  .arch-arrow {
+    font-size: 24px;
+    color: var(--accent);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  /* ===== Feature list ===== */
+  .feature-list {
+    list-style: none;
+    width: 100%;
+    max-width: 900px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .feature-item:last-child { border-bottom: none; }
+
+  .feature-icon {
+    width: 40px; height: 40px;
+    background: var(--gradient1);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .feature-text { flex: 1; }
+  .feature-title { font-size: 16px; font-weight: 600; margin-bottom: 4px; }
+  .feature-desc { font-size: 13px; color: var(--text2); line-height: 1.6; }
+
+  /* ===== Tech stack ===== */
+  .tech-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    width: 100%;
+    max-width: 1000px;
+  }
+
+  .tech-item {
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+
+  .tech-item:hover {
+    border-color: var(--primary-light);
+    transform: translateY(-2px);
+  }
+
+  .tech-icon { font-size: 32px; margin-bottom: 10px; }
+  .tech-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .tech-desc { font-size: 12px; color: var(--text2); }
+
+  /* ===== Flow steps ===== */
+  .flow-container {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    width: 100%;
+    max-width: 1100px;
+    overflow-x: auto;
+    padding: 20px 0;
+  }
+
+  .flow-step {
+    flex-shrink: 0;
+    background: var(--card);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    padding: 20px 24px;
+    min-width: 180px;
+    text-align: center;
+    position: relative;
+  }
+
+  .flow-step .step-num {
+    position: absolute;
+    top: -12px; left: 50%;
+    transform: translateX(-50%);
+    background: var(--gradient1);
+    color: white;
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .flow-step .step-icon { font-size: 28px; margin-bottom: 8px; margin-top: 4px; }
+  .flow-step .step-title { font-size: 14px; font-weight: 600; }
+  .flow-step .step-desc { font-size: 11px; color: var(--text2); margin-top: 4px; }
+
+  .flow-arrow {
+    flex-shrink: 0;
+    font-size: 20px;
+    color: var(--accent);
+    padding: 0 8px;
+  }
+
+  /* ===== Stats ===== */
+  .stats-row {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    margin: 30px 0;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 48px;
+    font-weight: 900;
+    background: var(--gradient1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .stat-label {
+    font-size: 14px;
+    color: var(--text2);
+    margin-top: 4px;
+  }
+
+  /* ===== Two column layout ===== */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    width: 100%;
+    max-width: 1200px;
+    align-items: start;
+  }
+
+  .col-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ===== Highlight box ===== */
+  .highlight-box {
+    background: linear-gradient(135deg, rgba(108,92,231,0.15), rgba(0,210,255,0.1));
+    border: 1px solid rgba(108,92,231,0.3);
+    border-radius: 16px;
+    padding: 24px;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .highlight-box h3 {
+    font-size: 18px;
+    margin-bottom: 12px;
+    color: var(--accent);
+  }
+
+  .highlight-box p, .highlight-box li {
+    font-size: 14px;
+    color: var(--text2);
+    line-height: 1.8;
+  }
+
+  .highlight-box ul {
+    padding-left: 20px;
+  }
+
+  /* ===== Table ===== */
+  .data-table {
+    width: 100%;
+    max-width: 1100px;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+
+  .data-table th {
+    background: rgba(108,92,231,0.2);
+    padding: 14px 20px;
+    text-align: left;
+    font-weight: 600;
+    border-bottom: 2px solid rgba(108,92,231,0.3);
+  }
+
+  .data-table td {
+    padding: 12px 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--text2);
+  }
+
+  .data-table tr:hover td {
+    background: rgba(255,255,255,0.02);
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .tag-yes { background: rgba(0,245,160,0.15); color: var(--success); }
+  .tag-no { background: rgba(255,255,255,0.08); color: var(--text2); }
+
+  /* ===== Scrollable code ===== */
+  .code-scroll {
+    max-height: 420px;
+    overflow-y: auto;
+  }
+
+  .code-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  .code-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+  }
+
+  /* ===== Thank you slide ===== */
+  .thankyou-icon {
+    font-size: 100px;
+    margin-bottom: 20px;
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* ===== Responsive ===== */
+  @media (max-width: 1200px) {
+    .slide { padding: 40px; }
+    .cover-title { font-size: 48px; }
+    .slide-title { font-size: 36px; }
+    .grid-4 { grid-template-columns: 1fr 1fr; }
+    .tech-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="presentation" id="presentation">
+
+  <!-- ==================== SLIDE 1: Cover ==================== -->
+  <div class="slide active" data-slide="1">
+    <div class="cover-content">
+      <div class="cover-icon">️</div>
+      <div class="cover-title">AI 旅行助手系统</div>
+      <div class="cover-desc">基于 LangGraph + MiMo AI 的多 Agent 智能旅行规划平台</div>
+      <div class="cover-tags">
+        <div class="cover-tag"> 多 Agent 协作</div>
+        <div class="cover-tag">⚡ 并行流式输出</div>
+        <div class="cover-tag">🔧 工具调用</div>
+        <div class="cover-tag">🌐 Web 应用</div>
+        <div class="cover-tag">📊 实时可视化</div>
+      </div>
+    </div>
+    <div class="slide-number">01 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 2: Overview ==================== -->
+  <div class="slide" data-slide="2">
+    <div class="section-label">项目概述</div>
+    <div class="slide-title">什么是 AI 旅行助手？</div>
+    <div class="slide-subtitle">一个基于大语言模型的智能旅行规划系统，通过多 Agent 协作架构，为用户提供一站式的旅行规划服务</div>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-num">8</div>
+        <div class="stat-label">Agent 功能模块</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">3</div>
+        <div class="stat-label">内置工具</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num"></div>
+        <div class="stat-label">并行扩展能力</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">流式实时输出</div>
+      </div>
+    </div>
+
+    <div class="highlight-box">
+      <h3>核心亮点</h3>
+      <ul>
+        <li><strong>多 Agent 并行</strong>：8 个 Agent 同时调用 AI 模型，互不阻塞，大幅提升响应速度</li>
+        <li><strong>独立输出框</strong>：每个 Agent 拥有专属展示区域，实时流式显示生成内容</li>
+        <li><strong>工具调用可视化</strong>：实时展示 Agent 的工具调用决策和返回结果</li>
+        <li><strong>灵活组合</strong>：用户可自由选择任意 Agent 组合，满足个性化需求</li>
+      </ul>
+    </div>
+    <div class="slide-number">02 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 3: Tech Stack ==================== -->
+  <div class="slide" data-slide="3">
+    <div class="section-label">技术架构</div>
+    <div class="slide-title">技术栈选型</div>
+    <div class="slide-subtitle">采用业界主流技术，确保系统的稳定性、可扩展性和开发效率</div>
+
+    <div class="tech-grid">
+      <div class="tech-item">
+        <div class="tech-icon">🐍</div>
+        <div class="tech-name">Python 3.11</div>
+        <div class="tech-desc">后端开发语言</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">️</div>
+        <div class="tech-name">Flask</div>
+        <div class="tech-desc">Web 框架 / RESTful API</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🔗</div>
+        <div class="tech-name">LangGraph</div>
+        <div class="tech-desc">多 Agent 编排框架</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🤖</div>
+        <div class="tech-name">LangChain</div>
+        <div class="tech-desc">LLM 调用抽象层</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon"></div>
+        <div class="tech-name">MiMo AI</div>
+        <div class="tech-desc">大语言模型后端</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">🌐</div>
+        <div class="tech-name">HTML/CSS/JS</div>
+        <div class="tech-desc">前端单页面应用</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">📡</div>
+        <div class="tech-name">SSE</div>
+        <div class="tech-desc">Server-Sent Events 流式传输</div>
+      </div>
+      <div class="tech-item">
+        <div class="tech-icon">️</div>
+        <div class="tech-name">PyMySQL</div>
+        <div class="tech-desc">MySQL 数据持久化</div>
+      </div>
+    </div>
+    <div class="slide-number">03 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 4: Project Structure ==================== -->
+  <div class="slide" data-slide="4">
+    <div class="section-label">项目结构</div>
+    <div class="slide-title">文件目录与模块说明</div>
+    <div class="slide-subtitle">清晰的模块化设计，每个文件职责明确</div>
+
+    <div class="two-col">
+      <div>
+        <div class="col-title">📁 核心文件</div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-title" style="font-size:16px">app.py</div>
+          <div class="card-desc">Flask 后端主程序，提供 Web API 接口，包含多 Agent 并行调度核心逻辑</div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-title" style="font-size:16px">agent.py</div>
+          <div class="card-desc">单 Agent 核心逻辑，ReAct Agent 的创建与运行封装</div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-title" style="font-size:16px">multi_agent.py</div>
+          <div class="card-desc">多 Agent 协作方案，基于 LangGraph StateGraph 构建</div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="font-size:16px">config.py</div>
+          <div class="card-desc">API 密钥、模型配置、服务商切换</div>
+        </div>
+      </div>
+      <div>
+        <div class="col-title">📁 工具与扩展</div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-title" style="font-size:16px">tools.py</div>
+          <div class="card-desc">模拟工具模块：天气查询、火车票搜索、邮件草稿生成</div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-title" style="font-size:16px">email_sender.py</div>
+          <div class="card-desc">SMTP 邮件发送模块，支持主流邮箱服务</div>
+        </div>
+        <div class="card" style="margin-bottom:12px">
+          <div class="card-title" style="font-size:16px">mysql_tools.py</div>
+          <div class="card-desc">MySQL 数据持久化工具，旅行记录存储</div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="font-size:16px">static/index.html</div>
+          <div class="card-desc">前端单页面应用，包含 Agent 选择、流式输出展示</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">04 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 5: 8 Agents ==================== -->
+  <div class="slide" data-slide="5">
+    <div class="section-label">功能模块</div>
+    <div class="slide-title">8 大 Agent 功能</div>
+    <div class="slide-subtitle">覆盖旅行规划的完整流程，从需求分析到攻略生成</div>
+
+    <div class="grid-4">
+      <div class="card">
+        <div class="card-icon">📋</div>
+        <div class="card-title">需求分析</div>
+        <div class="card-desc">提取出发地、目的地、天数、预算、偏好等关键信息</div>
+        <div class="card-badge">无工具</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">️</div>
+        <div class="card-title">景点推荐</div>
+        <div class="card-desc">推荐热门/小众景点，含游玩时间和距离分析</div>
+        <div class="card-badge">有工具</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🗺️</div>
+        <div class="card-title">路线规划</div>
+        <div class="card-desc">合理安排每日行程，考虑交通和开放时间</div>
+        <div class="card-badge">有工具</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🏨</div>
+        <div class="card-title">酒店推荐</div>
+        <div class="card-desc">根据预算和位置偏好推荐住宿方案</div>
+        <div class="card-badge">无工具</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">🚄</div>
+        <div class="card-title">交通规划</div>
+        <div class="card-desc">规划交通方案，含时间和费用估算</div>
+        <div class="card-badge">有工具</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">💰</div>
+        <div class="card-title">预算计算</div>
+        <div class="card-desc">计算旅行总花费明细（交通/住宿/门票/餐饮）</div>
+        <div class="card-badge">有工具</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">️</div>
+        <div class="card-title">风险提醒</div>
+        <div class="card-desc">检查天气风险、景区关闭、拥堵等注意事项</div>
+        <div class="card-badge">有工具</div>
+      </div>
+      <div class="card">
+        <div class="card-icon">📖</div>
+        <div class="card-title">攻略生成</div>
+        <div class="card-desc">生成完整的旅行攻略文档</div>
+        <div class="card-badge">有工具</div>
+      </div>
+    </div>
+    <div class="slide-number">05 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 6: Architecture ==================== -->
+  <div class="slide" data-slide="6">
+    <div class="section-label">系统架构</div>
+    <div class="slide-title">多 Agent 并行架构</div>
+    <div class="slide-subtitle">基于 Python threading + Queue 实现真正的并行 AI 调用</div>
+
+    <div class="arch-container">
+      <div class="arch-row">
+        <div class="arch-box primary">
+          <div class="box-icon"></div>
+          <div class="box-label">用户请求</div>
+          <div class="box-desc">选择 Agent + 输入需求</div>
+        </div>
+      </div>
+      <div class="arch-arrow">️</div>
+      <div class="arch-row">
+        <div class="arch-box highlight"><div class="box-icon"></div><div class="box-label">需求分析</div></div>
+        <div class="arch-box highlight"><div class="box-icon">️</div><div class="box-label">景点推荐</div></div>
+        <div class="arch-box highlight"><div class="box-icon">️</div><div class="box-label">路线规划</div></div>
+        <div class="arch-box highlight"><div class="box-icon"></div><div class="box-label">酒店推荐</div></div>
+        <div class="arch-box highlight"><div class="box-icon"></div><div class="box-label">交通规划</div></div>
+        <div class="arch-box highlight"><div class="box-icon">💰</div><div class="box-label">预算计算</div></div>
+        <div class="arch-box highlight"><div class="box-icon">⚠️</div><div class="box-label">风险提醒</div></div>
+        <div class="arch-box highlight"><div class="box-icon">📖</div><div class="box-label">攻略生成</div></div>
+      </div>
+      <div class="arch-arrow">⬇️ 并行执行 (threading)</div>
+      <div class="arch-row">
+        <div class="arch-box primary">
+          <div class="box-icon"></div>
+          <div class="box-label">Queue 队列</div>
+          <div class="box-desc">按到达顺序收集事件</div>
+        </div>
+      </div>
+      <div class="arch-arrow">⬇️</div>
+      <div class="arch-row">
+        <div class="arch-box primary">
+          <div class="box-icon"></div>
+          <div class="box-label">SSE 流式响应</div>
+          <div class="box-desc">text/event-stream</div>
+        </div>
+      </div>
+      <div class="arch-arrow">️</div>
+      <div class="arch-row">
+        <div class="arch-box primary">
+          <div class="box-icon">️</div>
+          <div class="box-label">前端独立输出框</div>
+          <div class="box-desc">每个 Agent 独立渲染</div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">06 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 7: Core Code - Config ==================== -->
+  <div class="slide" data-slide="7">
+    <div class="section-label">核心代码</div>
+    <div class="slide-title">配置层 & 工具定义</div>
+    <div class="slide-subtitle">灵活的 API 配置和 LangChain 工具封装</div>
+
+    <div class="two-col">
+      <div>
+        <div class="col-title">️ config.py - API 配置</div>
+        <div class="code-block">
+          <div class="code-dots">
+            <div class="code-dot red"></div>
+            <div class="code-dot yellow"></div>
+            <div class="code-dot green"></div>
+          </div>
+          <div class="code-label">config.py</div>
+          <div class="code-scroll"><pre><span class="cm"># 小米 MiMo API 配置</span>
+<span class="var">MIMO_API_KEY</span> <span class="op">=</span> <span class="st">"sk-..."</span>
+<span class="var">MIMO_BASE_URL</span> <span class="op">=</span> <span class="st">"https://api.xiaomimimo.com/v1"</span>
+<span class="var">MIMO_MODEL</span> <span class="op">=</span> <span class="st">"mimo-v2.5-pro"</span>
+
+<span class="cm"># 当前使用的 API（可切换）</span>
+<span class="var">ACTIVE_API_KEY</span> <span class="op">=</span> <span class="var">MIMO_API_KEY</span>
+<span class="var">ACTIVE_BASE_URL</span> <span class="op">=</span> <span class="var">MIMO_BASE_URL</span>
+<span class="var">ACTIVE_MODEL</span> <span class="op">=</span> <span class="var">MIMO_MODEL</span></pre></div>
+        </div>
+      </div>
+      <div>
+        <div class="col-title">🔧 tools.py - 工具定义</div>
+        <div class="code-block">
+          <div class="code-dots">
+            <div class="code-dot red"></div>
+            <div class="code-dot yellow"></div>
+            <div class="code-dot green"></div>
+          </div>
+          <div class="code-label">tools.py</div>
+          <div class="code-scroll"><pre><span class="kw">from</span> langchain_core.tools <span class="kw">import</span> <span class="bi">tool</span>
+
+<span class="op">@</span><span class="bi">tool</span>
+<span class="kw">def</span> <span class="fn">get_weather</span>(<span class="var">city</span>: <span class="bi">str</span>, <span class="var">date</span>: <span class="bi">str</span> <span class="op">=</span> <span class="st">"today"</span>) <span class="op">-></span> <span class="bi">str</span>:
+    <span class="st">"""查询指定城市的天气信息"""</span>
+    <span class="cm"># 模拟天气数据返回</span>
+    <span class="kw">return</span> <span class="st">f"城市：{city} 温度：28°C ..."</span>
+
+<span class="op">@</span><span class="bi">tool</span>
+<span class="kw">def</span> <span class="fn">search_train_ticket</span>(
+    <span class="var">from_city</span>: <span class="bi">str</span>, <span class="var">to_city</span>: <span class="bi">str</span>, <span class="var">date</span>: <span class="bi">str</span>
+) <span class="op">-></span> <span class="bi">str</span>:
+    <span class="st">"""搜索火车票信息"""</span>
+    <span class="cm"># 模拟车次数据返回</span>
+    <span class="kw">return</span> <span class="st">"G1234 | 08:00 | ¥500 ..."</span>
+
+<span class="op">@</span><span class="bi">tool</span>
+<span class="kw">def</span> <span class="fn">draft_email</span>(<span class="var">to</span>, <span class="var">subject</span>, <span class="var">body</span>) <span class="op">-></span> <span class="bi">str</span>:
+    <span class="st">"""生成邮件草稿"""</span>
+    <span class="kw">return</span> <span class="st">f"邮件草稿内容..."</span></pre></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">07 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 8: Core Code - Agent ==================== -->
+  <div class="slide" data-slide="8">
+    <div class="section-label">核心代码</div>
+    <div class="slide-title">ReAct Agent 创建</div>
+    <div class="slide-subtitle">使用 LangGraph create_react_agent 构建智能 Agent</div>
+
+    <div class="code-block">
+      <div class="code-dots">
+        <div class="code-dot red"></div>
+        <div class="code-dot yellow"></div>
+        <div class="code-dot green"></div>
+      </div>
+      <div class="code-label">agent.py - create_travel_agent()</div>
+      <div class="code-scroll"><pre><span class="kw">from</span> langchain_openai <span class="kw">import</span> <span class="bi">ChatOpenAI</span>
+<span class="kw">from</span> langgraph.prebuilt <span class="kw">import</span> <span class="fn">create_react_agent</span>
+<span class="kw">from</span> config <span class="kw">import</span> <span class="var">ACTIVE_API_KEY</span>, <span class="var">ACTIVE_BASE_URL</span>, <span class="var">ACTIVE_MODEL</span>
+<span class="kw">from</span> tools <span class="kw">import</span> <span class="fn">get_weather</span>, <span class="fn">search_train_ticket</span>, <span class="fn">draft_email</span>
+
+<span class="kw">def</span> <span class="fn">create_travel_agent</span>():
+    <span class="cm"># 1. 初始化 LLM（连接 MiMo API）</span>
+    <span class="var">llm</span> <span class="op">=</span> <span class="bi">ChatOpenAI</span>(
+        <span class="var">model</span><span class="op">=</span><span class="var">ACTIVE_MODEL</span>,          <span class="cm"># mimo-v2.5-pro</span>
+        <span class="var">api_key</span><span class="op">=</span><span class="var">ACTIVE_API_KEY</span>,      <span class="cm"># API 密钥</span>
+        <span class="var">base_url</span><span class="op">=</span><span class="var">ACTIVE_BASE_URL</span>,    <span class="cm"># OpenAI 兼容接口</span>
+        <span class="var">temperature</span><span class="op">=</span><span class="num">0.7</span>,             <span class="cm"># 创造性参数</span>
+        <span class="var">streaming</span><span class="op">=</span><span class="kw">True</span>,              <span class="cm"># 启用流式输出</span>
+    )
+
+    <span class="cm"># 2. 注册工具</span>
+    <span class="var">tools</span> <span class="op">=</span> [<span class="fn">get_weather</span>, <span class="fn">search_train_ticket</span>, <span class="fn">draft_email</span>]
+
+    <span class="cm"># 3. 系统提示词</span>
+    <span class="var">system_prompt</span> <span class="op">=</span> <span class="st">"""你是一个专业的旅行助手Agent..."""</span>
+
+    <span class="cm"># 4. 创建 ReAct Agent</span>
+    <span class="var">agent</span> <span class="op">=</span> <span class="fn">create_react_agent</span>(
+        <span class="var">model</span><span class="op">=</span><span class="var">llm</span>,
+        <span class="var">tools</span><span class="op">=</span><span class="var">tools</span>,
+        <span class="var">prompt</span><span class="op">=</span><span class="var">system_prompt</span>,
+    )
+    <span class="kw">return</span> <span class="var">agent</span></pre></div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:20px">
+      <h3>关键技术点</h3>
+      <ul>
+        <li><strong>ChatOpenAI</strong>：LangChain 的 LLM 封装，兼容所有 OpenAI 格式 API</li>
+        <li><strong>create_react_agent</strong>：LangGraph 提供的 ReAct 模式 Agent，自动进行"思考→行动→观察"循环</li>
+        <li><strong>streaming=True</strong>：启用流式输出，实现逐字显示效果</li>
+      </ul>
+    </div>
+    <div class="slide-number">08 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 9: Core Code - Parallel ==================== -->
+  <div class="slide" data-slide="9">
+    <div class="section-label">核心代码</div>
+    <div class="slide-title">多 Agent 并行调度</div>
+    <div class="slide-subtitle">使用 threading + Queue 实现真正的并行 AI 调用</div>
+
+    <div class="code-block">
+      <div class="code-dots">
+        <div class="code-dot red"></div>
+        <div class="code-dot yellow"></div>
+        <div class="code-dot green"></div>
+      </div>
+      <div class="code-label">app.py - agent_run_api() 核心逻辑</div>
+      <div class="code-scroll"><pre><span class="kw">import</span> <span class="var">queue</span>, <span class="var">threading</span>
+
+<span class="kw">def</span> <span class="fn">run_single_agent</span>(<span class="var">agent_type</span>, <span class="var">config</span>, <span class="var">user_prompt</span>, <span class="var">q</span>):
+    <span class="st">"""单个Agent运行线程 - 推送到队列"""</span>
+    <span class="kw">try</span>:
+        <span class="var">q</span>.<span class="fn">put</span>((<span class="st">"agent_start"</span>, {<span class="st">"agent_key"</span>: <span class="var">agent_type</span>, ...}))
+
+        <span class="kw">if</span> <span class="var">config</span>[<span class="st">"use_tools"</span>]:
+            <span class="cm"># 使用工具的 Agent（ReAct 模式）</span>
+            <span class="var">agent</span> <span class="op">=</span> <span class="fn">create_react_agent</span>(<span class="var">model</span><span class="op">=</span><span class="var">llm</span>, <span class="var">tools</span><span class="op">=</span><span class="var">tools</span>, ...)
+            <span class="kw">for</span> <span class="var">event</span> <span class="kw">in</span> <span class="var">agent</span>.<span class="fn">stream</span>(..., <span class="var">stream_mode</span><span class="op">=</span><span class="st">"messages"</span>):
+                <span class="var">msg_obj</span> <span class="op">=</span> <span class="var">event</span>[<span class="num">0</span>]
+                <span class="kw">if</span> <span class="fn">hasattr</span>(<span class="var">msg_obj</span>, <span class="st">"tool_calls"</span>) <span class="kw">and</span> <span class="var">msg_obj</span>.<span class="var">tool_calls</span>:
+                    <span class="var">q</span>.<span class="fn">put</span>((<span class="st">"tool_call"</span>, {...}))       <span class="cm"># 工具调用</span>
+                <span class="kw">elif</span> <span class="fn">type</span>(<span class="var">msg_obj</span>).<span class="fn">__name__</span> <span class="op">==</span> <span class="st">"ToolMessage"</span>:
+                    <span class="var">q</span>.<span class="fn">put</span>((<span class="st">"tool_result"</span>, {...}))     <span class="cm"># 工具结果</span>
+                <span class="kw">elif</span> <span class="var">msg_obj</span>.<span class="var">content</span>:
+                    <span class="var">q</span>.<span class="fn">put</span>((<span class="st">"chunk"</span>, {<span class="st">"content"</span>: <span class="var">msg_obj</span>.<span class="var">content</span>}))  <span class="cm"># 流式文本</span>
+        <span class="kw">else</span>:
+            <span class="cm"># 直接调用 LLM（无工具）</span>
+            <span class="kw">for</span> <span class="var">chunk</span> <span class="kw">in</span> <span class="var">llm</span>.<span class="fn">stream</span>(<span class="var">messages</span>):
+                <span class="var">q</span>.<span class="fn">put</span>((<span class="st">"chunk"</span>, {<span class="st">"content"</span>: <span class="var">chunk</span>.<span class="var">content</span>}))
+
+        <span class="var">q</span>.<span class="fn">put</span>((<span class="st">"agent_done"</span>, {...}))
+    <span class="kw">except</span> <span class="bi">Exception</span> <span class="kw">as</span> <span class="var">e</span>:
+        <span class="var">q</span>.<span class="fn">put</span>((<span class="st">"agent_error"</span>, {...}))
+
+<span class="cm"># 主函数：启动所有 Agent 线程</span>
+<span class="kw">for</span> <span class="var">agent_type</span> <span class="kw">in</span> <span class="var">agents</span>:
+    <span class="var">t</span> <span class="op">=</span> <span class="var">threading</span>.<span class="bi">Thread</span>(<span class="var">target</span><span class="op">=</span><span class="fn">run_single_agent</span>, <span class="var">args</span><span class="op">=</span>(...))
+    <span class="var">t</span>.<span class="fn">start</span>()  <span class="cm"># 并行启动！</span></pre></div>
+    </div>
+    <div class="slide-number">09 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 10: Core Code - SSE ==================== -->
+  <div class="slide" data-slide="10">
+    <div class="section-label">核心代码</div>
+    <div class="slide-title">SSE 流式传输 & 前端渲染</div>
+    <div class="slide-subtitle">Server-Sent Events 实现实时数据推送，前端独立输出框渲染</div>
+
+    <div class="two-col">
+      <div>
+        <div class="col-title">📡 后端 SSE 推送</div>
+        <div class="code-block">
+          <div class="code-dots">
+            <div class="code-dot red"></div>
+            <div class="code-dot yellow"></div>
+            <div class="code-dot green"></div>
+          </div>
+          <div class="code-label">app.py - generate()</div>
+          <div class="code-scroll"><pre><span class="kw">def</span> <span class="fn">generate</span>():
+    <span class="var">q</span> <span class="op">=</span> <span class="var">queue</span>.<span class="bi">Queue</span>()
+    <span class="var">threads</span> <span class="op">=</span> []
+
+    <span class="cm"># 启动所有 Agent 线程</span>
+    <span class="kw">for</span> <span class="var">agent_type</span> <span class="kw">in</span> <span class="var">agents</span>:
+        <span class="var">t</span> <span class="op">=</span> <span class="var">threading</span>.<span class="bi">Thread</span>(
+            <span class="var">target</span><span class="op">=</span><span class="fn">run_single_agent</span>,
+            <span class="var">args</span><span class="op">=</span>(<span class="var">agent_type</span>, <span class="var">config</span>, <span class="var">prompt</span>, <span class="var">q</span>)
+        )
+        <span class="var">t</span>.<span class="fn">start</span>()
+        <span class="var">threads</span>.<span class="fn">append</span>(<span class="var">t</span>)
+
+    <span class="cm"># 监听队列，按到达顺序推送</span>
+    <span class="kw">while</span> <span class="fn">len</span>(<span class="var">done</span>) <span class="op"><</span> <span class="fn">len</span>(<span class="var">active</span>):
+        <span class="var">event_type</span>, <span class="var">data</span> <span class="op">=</span> <span class="var">q</span>.<span class="fn">get</span>(<span class="var">timeout</span><span class="op">=</span><span class="num">180</span>)
+        <span class="var">payload</span> <span class="op">=</span> {<span class="st">"type"</span>: <span class="var">event_type</span>, <span class="op">**</span><span class="var">data</span>}
+        <span class="kw">yield</span> <span class="st">f"data: {json.dumps(payload)}\n\n"</span>
+
+    <span class="kw">return</span> <span class="bi">Response</span>(
+        <span class="fn">generate</span>(),
+        <span class="var">mimetype</span><span class="op">=</span><span class="st">"text/event-stream"</span>,
+        <span class="var">headers</span><span class="op">=</span>{<span class="st">"Cache-Control"</span>: <span class="st">"no-cache"</span>}
+    )</pre></div>
+        </div>
+      </div>
+      <div>
+        <div class="col-title">🖥️ 前端流式渲染</div>
+        <div class="code-block">
+          <div class="code-dots">
+            <div class="code-dot red"></div>
+            <div class="code-dot yellow"></div>
+            <div class="code-dot green"></div>
+          </div>
+          <div class="code-label">index.html - runSelectedAgents()</div>
+          <div class="code-scroll"><pre><span class="kw">const</span> <span class="var">reader</span> <span class="op">=</span> <span class="var">response</span>.<span class="var">body</span>.<span class="fn">getReader</span>();
+<span class="kw">const</span> <span class="var">decoder</span> <span class="op">=</span> <span class="kw">new</span> <span class="bi">TextDecoder</span>();
+
+<span class="kw">while</span> (<span class="kw">true</span>) {
+  <span class="kw">const</span> { <span class="var">done</span>, <span class="var">value</span> } <span class="op">=</span> <span class="kw">await</span> <span class="var">reader</span>.<span class="fn">read</span>();
+  <span class="kw">if</span> (<span class="var">done</span>) <span class="kw">break</span>;
+
+  <span class="cm">// 解析 SSE 数据</span>
+  <span class="kw">const</span> <span class="var">parsed</span> <span class="op">=</span> <span class="bi">JSON</span>.<span class="fn">parse</span>(<span class="var">data</span>);
+  <span class="kw">const</span> <span class="var">target</span> <span class="op">=</span> <span class="var">agentContainers</span>[<span class="var">parsed</span>.<span class="var">agent_key</span>];
+
+  <span class="kw">switch</span> (<span class="var">parsed</span>.<span class="var">type</span>) {
+    <span class="kw">case</span> <span class="st">'chunk'</span>:
+      <span class="var">target</span>.<span class="var">fullText</span> <span class="op">+=</span> <span class="var">parsed</span>.<span class="var">content</span>;
+      <span class="var">textNode</span>.<span class="var">innerHTML</span> <span class="op">=</span>
+        <span class="fn">formatMarkdown</span>(<span class="var">target</span>.<span class="var">fullText</span>)
+        <span class="op">+</span> <span class="st">'&lt;span class="typing-cursor"&gt;&lt;/span&gt;'</span>;
+      <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="st">'agent_done'</span>:
+      <span class="var">target</span>.<span class="var">status</span> <span class="op">=</span> <span class="st">'✅ 已完成'</span>;
+      <span class="kw">break</span>;
+  }
+}</pre></div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">10 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 11: SSE Events ==================== -->
+  <div class="slide" data-slide="11">
+    <div class="section-label">数据协议</div>
+    <div class="slide-title">SSE 事件类型定义</div>
+    <div class="slide-subtitle">前后端通过统一的 SSE 事件协议进行通信</div>
+
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>事件类型</th>
+          <th>字段</th>
+          <th>说明</th>
+          <th>触发时机</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code style="color:var(--accent)">agent_start</code></td>
+          <td>agent_key, agent_name</td>
+          <td>Agent 开始工作</td>
+          <td>线程启动时</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--warning)">tool_call</code></td>
+          <td>agent_key, tool_name, tool_args</td>
+          <td>Agent 决定调用工具</td>
+          <td>ReAct 循环中</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--success)">tool_result</code></td>
+          <td>agent_key, tool_name, content</td>
+          <td>工具返回结果</td>
+          <td>工具执行完毕</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--primary-light)">chunk</code></td>
+          <td>agent_key, content</td>
+          <td>AI 流式文本片段</td>
+          <td>LLM 逐字输出</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--success)">agent_done</code></td>
+          <td>agent_key, agent_name</td>
+          <td>Agent 完成工作</td>
+          <td>线程结束时</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--danger)">agent_error</code></td>
+          <td>agent_key, error</td>
+          <td>Agent 执行出错</td>
+          <td>异常捕获时</td>
+        </tr>
+        <tr>
+          <td><code style="color:var(--text2)">final</code></td>
+          <td>content</td>
+          <td>所有 Agent 完成</td>
+          <td>全部线程结束</td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="slide-number">11 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 12: Workflow ==================== -->
+  <div class="slide" data-slide="12">
+    <div class="section-label">工作流程</div>
+    <div class="slide-title">完整请求处理流程</div>
+    <div class="slide-subtitle">从用户输入到最终展示的完整链路</div>
+
+    <div class="flow-container">
+      <div class="flow-step">
+        <div class="step-num">1</div>
+        <div class="step-icon"></div>
+        <div class="step-title">用户选择 Agent</div>
+        <div class="step-desc">勾选功能模块<br>输入旅行需求</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">2</div>
+        <div class="step-icon">📨</div>
+        <div class="step-title">前端发送请求</div>
+        <div class="step-desc">POST /api/agent-run<br>JSON 格式数据</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">3</div>
+        <div class="step-icon">🧵</div>
+        <div class="step-title">并行启动线程</div>
+        <div class="step-desc">每个 Agent 独立<br>threading.Thread</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">4</div>
+        <div class="step-icon">🤖</div>
+        <div class="step-title">调用 AI 模型</div>
+        <div class="step-desc">MiMo API<br>ReAct / 直接调用</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">5</div>
+        <div class="step-icon">📡</div>
+        <div class="step-title">Queue 收集事件</div>
+        <div class="step-desc">按到达顺序<br>推送到 SSE</div>
+      </div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-step">
+        <div class="step-num">6</div>
+        <div class="step-icon">🖥️</div>
+        <div class="step-title">前端独立渲染</div>
+        <div class="step-desc">每个 Agent<br>独立输出框</div>
+      </div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:30px">
+      <h3>关键技术决策</h3>
+      <ul>
+        <li><strong>threading vs asyncio</strong>：选择 threading 是因为 LangChain 的 LLM 调用是同步阻塞的，threading 更简单直接</li>
+        <li><strong>Queue vs 直接 yield</strong>：使用 Queue 解耦生产者和消费者，避免线程竞争</li>
+        <li><strong>SSE vs WebSocket</strong>：SSE 是单向推送，实现更简单，适合本场景的"服务器→客户端"数据流</li>
+      </ul>
+    </div>
+    <div class="slide-number">12 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 13: Demo ==================== -->
+  <div class="slide" data-slide="13">
+    <div class="section-label">效果展示</div>
+    <div class="slide-title">实际运行效果</div>
+    <div class="slide-subtitle">多 Agent 并行流式输出的真实界面</div>
+
+    <div class="grid-2">
+      <div class="card" style="border-color: rgba(0,210,255,0.3)">
+        <div class="card-title" style="color: var(--accent)">左侧栏 - Agent 选择</div>
+        <div class="card-desc">
+          <p style="margin-bottom:12px">8 个 Agent 卡片，每个都有独立图标和描述：</p>
+          <p>📋 需求分析 &nbsp; 🏞️ 景点推荐 &nbsp; 🗺️ 路线规划 &nbsp; 🏨 酒店推荐</p>
+          <p>🚄 交通规划 &nbsp; 💰 预算计算 &nbsp; ⚠️ 风险提醒 &nbsp;  攻略生成</p>
+          <p style="margin-top:12px; color: var(--text)">支持单选/多选，底部有全选/清除/运行按钮</p>
+        </div>
+      </div>
+      <div class="card" style="border-color: rgba(108,92,231,0.3)">
+        <div class="card-title" style="color: var(--primary-light)">右侧 - 并行输出</div>
+        <div class="card-desc">
+          <p style="margin-bottom:12px">每个 Agent 独立输出框，包含：</p>
+          <p>🔹 标题栏：图标 + 名称 + 状态标识</p>
+          <p>🔹 工具调用：黄色框显示工具名和参数</p>
+          <p> 工具结果：绿色框显示返回数据</p>
+          <p>🔹 流式文本：逐字显示 + 闪烁光标</p>
+          <p style="margin-top:12px; color: var(--text)">状态：⏳ 等待中 → 🔄 运行中 → ✅ 已完成</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row" style="margin-top:30px">
+      <div class="stat-item">
+        <div class="stat-num">8</div>
+        <div class="stat-label">Agent 同时运行</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">实时</div>
+        <div class="stat-label">流式输出</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">0</div>
+        <div class="stat-label">阻塞等待</div>
+      </div>
+    </div>
+    <div class="slide-number">13 / 14</div>
+  </div>
+
+  <!-- ==================== SLIDE 14: Thank You ==================== -->
+  <div class="slide" data-slide="14">
+    <div class="thankyou-icon">🚀</div>
+    <div class="cover-title" style="font-size:56px">感谢观看</div>
+    <div class="cover-desc">AI 旅行助手系统 - 多 Agent 智能旅行规划平台</div>
+
+    <div class="cover-tags" style="margin-top:20px">
+      <div class="cover-tag">Python + Flask</div>
+      <div class="cover-tag">LangGraph + LangChain</div>
+      <div class="cover-tag">MiMo AI</div>
+      <div class="cover-tag">SSE 流式传输</div>
+    </div>
+
+    <div class="highlight-box" style="margin-top:40px; max-width:700px; text-align:center">
+      <h3>项目地址</h3>
+      <p style="font-size:16px; color: var(--text)">github.com/your-username/travel_agent</p>
+      <p style="margin-top:12px">技术栈：Python 3.11 | Flask | LangGraph | LangChain | MiMo AI | SSE</p>
+    </div>
+    <div class="slide-number">14 / 14</div>
+  </div>
+
+</div>
+
+<!-- Navigation Bar -->
+<div class="nav-bar">
+  <button class="nav-btn" onclick="prevSlide()">◀ 上一页</button>
+  <div class="nav-dots" id="navDots"></div>
+  <button class="nav-btn" onclick="nextSlide()">下一页 ▶</button>
+  <button class="nav-btn" onclick="toggleFullscreen()" style="margin-left:12px">⛶ 全屏</button>
+</div>
+
+<script>
+  const totalSlides = 14;
+  let currentSlide = 1;
+
+  // Create dots
+  const dotsContainer = document.getElementById('navDots');
+  for (let i = 1; i <= totalSlides; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i === 1 ? ' active' : '');
+    dot.onclick = () => goToSlide(i);
+    dotsContainer.appendChild(dot);
+  }
+
+  function goToSlide(n) {
+    if (n < 1 || n > totalSlides || n === currentSlide) return;
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.nav-dot');
+
+    slides[currentSlide - 1].classList.remove('active');
+    slides[currentSlide - 1].classList.add(n > currentSlide ? 'prev' : '');
+    dots[currentSlide - 1].classList.remove('active');
+
+    currentSlide = n;
+
+    slides[currentSlide - 1].classList.remove('prev');
+    slides[currentSlide - 1].classList.add('active');
+    dots[currentSlide - 1].classList.add('active');
+  }
+
+  function nextSlide() { goToSlide(currentSlide + 1); }
+  function prevSlide() { goToSlide(currentSlide - 1); }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+      e.preventDefault();
+      nextSlide();
+    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+      e.preventDefault();
+      prevSlide();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      goToSlide(1);
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      goToSlide(totalSlides);
+    } else if (e.key === 'f' || e.key === 'F') {
+      toggleFullscreen();
+    }
+  });
+
+  // Touch support
+  let touchStartX = 0;
+  document.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; });
+  document.addEventListener('touchend', (e) => {
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? nextSlide() : prevSlide();
+    }
+  });
+</script>
+
+</body>
+</html>

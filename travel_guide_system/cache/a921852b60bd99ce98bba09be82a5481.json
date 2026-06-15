@@ -1,0 +1,31 @@
+{
+  "origin": "广州",
+  "destination": "上海",
+  "data_type": "web",
+  "cached_at": "2026-06-15T21:33:49.119551",
+  "data": {
+    "success": true,
+    "schema_version": 2,
+    "query": "广州到上海 旅游攻略 景点 美食 交通 住宿",
+    "origin": "广州",
+    "destination": "上海",
+    "total_results": 1,
+    "results": [
+      {
+        "title": "打开搜索结果：广州到上海 旅游攻略 景点 美食 交通 住宿",
+        "url": "https://duckduckgo.com/?q=%E5%B9%BF%E5%B7%9E%E5%88%B0%E4%B8%8A%E6%B5%B7+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E6%99%AF%E7%82%B9+%E7%BE%8E%E9%A3%9F+%E4%BA%A4%E9%80%9A+%E4%BD%8F%E5%AE%BF",
+        "source": "搜索入口",
+        "snippet": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+        "publish_date": "",
+        "views": null,
+        "source_url": "https://duckduckgo.com/?q=%E5%B9%BF%E5%B7%9E%E5%88%B0%E4%B8%8A%E6%B5%B7+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E6%99%AF%E7%82%B9+%E7%BE%8E%E9%A3%9F+%E4%BA%A4%E9%80%9A+%E4%BD%8F%E5%AE%BF",
+        "is_fallback": true
+      }
+    ],
+    "search_time": 0.0,
+    "mode": "fallback",
+    "engine": "fallback",
+    "warning": "公开搜索暂时不可用，已提供可点击的搜索入口。",
+    "source_url": "https://duckduckgo.com/?q=%E5%B9%BF%E5%B7%9E%E5%88%B0%E4%B8%8A%E6%B5%B7+%E6%97%85%E6%B8%B8%E6%94%BB%E7%95%A5+%E6%99%AF%E7%82%B9+%E7%BE%8E%E9%A3%9F+%E4%BA%A4%E9%80%9A+%E4%BD%8F%E5%AE%BF"
+  }
+}
